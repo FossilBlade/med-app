@@ -1,0 +1,18 @@
+<nb-card>
+  <nb-card-header>    
+    <input type="text" placeholder="Data Set Name" nbInput>    
+  </nb-card-header>
+  <nb-card-body>
+    <nb-select multiple placeholder="Algoes to Run" [(selected)]="selectedAlgos">
+      <nb-option value="1">Option 1</nb-option>
+      <nb-option value="2">Option 2</nb-option>
+      <nb-option value="3">Option 3</nb-option>
+      <nb-option value="4">Option 4</nb-option>
+    </nb-select>
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="primary" (click)="openFile()">Upload</button>
+    <input type="file" id="fileUpload" (change)="handle($event)"  nbInput hidden>
+    <nb-progress-bar [value]="40" status="primary" [displayValue]="true"></nb-progress-bar>
+  </nb-card-footer>
+</nb-card>

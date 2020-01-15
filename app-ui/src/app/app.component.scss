@@ -1,0 +1,19 @@
+.left {
+    margin-left: auto;
+  }
+  .profile {
+    cursor: pointer;
+  }
+
+
+.image {
+  width: 48px;
+  height: 48px;
+  border-radius: 0;
+  object-fit: fill;
+}
+
+app-header {
+  flex: 1;
+  overflow: hidden;
+}

@@ -1,16 +1,25 @@
 <nb-layout>
 
   <nb-layout-header fixed>
-    <nb-actions class="left">
+    <!-- <nb-actions class="left">
       <nb-action class="profile" [nbContextMenu]="items" nbContextMenuPlacement="bottom">Profile</nb-action>
       <nb-action>Settings</nb-action>
-    </nb-actions>
+    </nb-actions> -->
+
+
+
+
+    <img class="image" src="/assets/images/main.png">
+    <h1 class="text-primary">APP</h1>
+
+
+
   </nb-layout-header>
 
   <nb-layout-column>
 
     <router-outlet></router-outlet>
-    
+
   </nb-layout-column>
 
   <nb-layout-footer fixed>
