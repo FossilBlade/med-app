@@ -1,18 +1,20 @@
 <nb-card>
   <nb-card-header>    
-    <input type="text" placeholder="Data Set Name" nbInput>    
+    <input type="text" placeholder="Data Set Name" [(ngModel)]="dataName" nbInput>    
   </nb-card-header>
   <nb-card-body>
     <nb-select multiple placeholder="Algoes to Run" [(selected)]="selectedAlgos">
-      <nb-option value="1">Option 1</nb-option>
-      <nb-option value="2">Option 2</nb-option>
-      <nb-option value="3">Option 3</nb-option>
-      <nb-option value="4">Option 4</nb-option>
+      <nb-option *ngFor="let algo of algos" [value]="algo">{{algo}}</nb-option>
+      <!-- <nb-option value="2">Algo 2</nb-option>
+      <nb-option value="3">Algo 3</nb-option>
+      <nb-option value="4">Algo 4</nb-option> -->
     </nb-select>
   </nb-card-body>
   <nb-card-footer>
-    <button nbButton status="primary" (click)="openFile()">Upload</button>
-    <input type="file" id="fileUpload" (change)="handle($event)"  nbInput hidden>
-    <nb-progress-bar [value]="40" status="primary" [displayValue]="true"></nb-progress-bar>
+    <button nbButton *ngIf="!uploadComplete && !errorMsg && !uploadStarted" status="primary" (click)="openFile()" [disabled]="!(dataName && selectedAlgos)">Upload</button>
+    <input type="file" id="fileUpload" (change)="inputFileHandle($event)" hidden>
+    <nb-alert *ngIf="errorMsg" outline="danger">{{errorMsg}}</nb-alert>
+    <nb-alert *ngIf="uploadComplete" outline="success">Upload Success. Email notification will be send.</nb-alert>
+    <nb-progress-bar *ngIf="uploadStarted" [value]="uploadProgressValue" status="primary" [displayValue]="uploadProgressValue"></nb-progress-bar>
   </nb-card-footer>
 </nb-card>

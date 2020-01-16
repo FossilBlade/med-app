@@ -6,7 +6,7 @@ import {
   HttpEventType
 } from "@angular/common/http";
 import { ResponseContentType } from "@angular/http";
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from "rxjs";
 
 import { environment } from "../../environments/environment";
 import { CheckResult } from "../_models/check-result";
@@ -16,13 +16,13 @@ import {
   retry,
   catchError,
   timeout,
-  finalize
+  finalize,
+  map
 } from "rxjs/operators";
 
-import { of } from 'rxjs';
-import {throwError} from "rxjs"
-
-
+import { of } from "rxjs";
+import { throwError } from "rxjs";
+import { AlgoResult } from '../_models/algo-result';
 
 @Injectable({ providedIn: "root" })
 export class ApiService {
@@ -78,6 +78,17 @@ export class ApiService {
     return this.http.get(`${environment.apiUrl}/report`, {
       params: params,
       responseType: "blob",
+      reportProgress: true,
+      observe: "events"
+    });
+  }
+
+  getAlgos() {
+    return this.http.get<AlgoResult>(`${environment.apiUrl}/algo`).pipe(map(response => response))
+  }
+
+  uploadFile(formData: FormData) {
+    return this.http.post(`${environment.apiUrl}/upload`, formData, {
       reportProgress: true,
       observe: "events"
     });

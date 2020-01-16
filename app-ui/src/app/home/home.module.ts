@@ -8,13 +8,21 @@ import {
   NbTabsetModule,
   NbInputModule,
   NbSelectModule,
-  NbProgressBarModule
+  NbProgressBarModule,NbAlertModule,
+  NbRadioModule 
 } from "@nebular/theme";
 
 import { HomeRoutingModule } from "./home-routing.module";
 import { HomeComponent } from "./home.component";
 import { UploadComponent } from "./upload/upload.component";
 import { ViewComponent } from "./view/view.component";
+import {FormsModule} from "@angular/forms"
+
+
+import { NgxGalleryModule } from 'ngx-gallery';
+
+
+
 
 @NgModule({
   declarations: [HomeComponent, UploadComponent, ViewComponent],
@@ -27,7 +35,12 @@ import { ViewComponent } from "./view/view.component";
     NbRouteTabsetModule,
     NbInputModule,
     NbSelectModule,
-    NbProgressBarModule
+    NbProgressBarModule,
+    NbAlertModule,
+    FormsModule,
+    NgxGalleryModule,
+    NbRadioModule
+    
   ]
 })
 export class HomeModule {}

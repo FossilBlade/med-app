@@ -1,5 +1,8 @@
-import { Component, OnInit } from "@angular/core";
-import { HttpClient, HttpEventType } from "@angular/common/http";
+import { Component, OnInit, ChangeDetectorRef } from "@angular/core";
+import { HttpEventType } from "@angular/common/http";
+
+import { ApiService } from "src/app/_services/api.service";
+import { AlgoResult } from 'src/app/_models/algo-result';
 
 @Component({
   selector: "app-upload",
@@ -7,69 +10,83 @@ import { HttpClient, HttpEventType } from "@angular/common/http";
   styleUrls: ["./upload.component.scss"]
 })
 export class UploadComponent implements OnInit {
-  fileData: File = null;
-  previewUrl: any = null;
-  fileUploadProgress: string = null;
-  uploadedFilePath: string = null;
+  algos:string[];
+  selectedAlgos:string[];
+  dataName:string;
+  uploadProgressValue:number=0;
+  showError:boolean=false;
+  uploadStarted:boolean=false;
+  uploadComplete:boolean=false;
+  errorMsg:string="";
+  constructor(private apiService: ApiService,private cdr: ChangeDetectorRef) {}
 
-  selectedAlgos;
+  ngOnInit() {
 
-  constructor(private http: HttpClient) {}
+     this.apiService.getAlgos().subscribe(
+      data => {
+        console.log("Algo Data: " + JSON.stringify(data, null, 2));
+        this.algos = data.algos;
+      },
+      err => {
+        console.error("Error getting algos: " + JSON.stringify(err, null, 2));
+      }
+    );
+    
 
-  ngOnInit() {}
+
+  }
 
   openFile() {
-    console.log("hell");
-    document.getElementById("fileUpload").click();
-    // document.querySelector('input').click()
-  }
-
-  handle(e) {
-    var files = e.target.files;
-    var fileName = files[0].name;
-
-    console.log("Change input file: " + fileName);
-  }
-
-  fileProgress(fileInput: any) {
-    this.fileData = <File>fileInput.target.files[0];
-    this.preview();
-  }
-
-  preview() {
-    // Show preview
-    var mimeType = this.fileData.type;
-    if (mimeType.match(/image\/*/) == null) {
-      return;
+    
+    if (!this.dataName || !this.selectedAlgos){
+      this.showError =true;
     }
 
-    var reader = new FileReader();
-    reader.readAsDataURL(this.fileData);
-    reader.onload = _event => {
-      this.previewUrl = reader.result;
-    };
+    console.log("Selected Algos: " + this.selectedAlgos);
+    console.log("Data name: " + this.dataName);
+
+
+    document.getElementById("fileUpload").click();
+   
   }
 
-  onSubmit() {
+  inputFileHandle(e) {
+    var files = e.target.files;
+    var fileData = files[0];
+
+   
+
+    console.log("Uploading file: " + fileData.name);
+
+    this.upload(fileData);
+  }
+
+  private upload(fileData) {
     const formData = new FormData();
-    formData.append('files', this.fileData);
+    formData.append("file", fileData);    
+    formData.append("algosToRun",JSON.stringify(this.selectedAlgos));
+    formData.append("dataSetName", this.dataName);
 
-    this.fileUploadProgress = '0%';
+    this.uploadStarted=true;
+    this.apiService.uploadFile(formData).subscribe(events => {
 
-    this.http.post('https://us-central1-tutorial-e6ea7.cloudfunctions.net/fileUpload', formData, {
-      reportProgress: true,
-      observe: 'events'
-    })
-    .subscribe(events => {
-      if(events.type === HttpEventType.UploadProgress) {
-        this.fileUploadProgress = Math.round(events.loaded / events.total * 100) + '%';
-        console.log(this.fileUploadProgress);
-      } else if(events.type === HttpEventType.Response) {
-        this.fileUploadProgress = '';
-        console.log(events.body);
-        alert('SUCCESS !!');
+      if (events.type === HttpEventType.UploadProgress) {
+        this.uploadProgressValue = Math.round((events.loaded / events.total) * 100);
+       if( this.uploadProgressValue>=98){
+          this.uploadProgressValue=98
+        }
+        this.cdr.detectChanges()
+      } else if (events.type === HttpEventType.Response) {
+        this.uploadStarted=false;
+        this.uploadComplete =true;
+        this.cdr.detectChanges()
       }
-
-    })
+    },err => {
+      this.uploadStarted=false;
+      this.uploadComplete =false;
+      this.errorMsg=JSON.stringify(err, null, 2);
+    });
   }
+
+
 }

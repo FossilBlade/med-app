@@ -1,1 +1,12 @@
-<p>view works!</p>
+<nb-card>    
+    <nb-card-body>
+      <ngx-gallery [options]="galleryOptions" [images]="galleryImages" (change)="act($event)" (previewOpen)="act($event)" #buttonsNavigationGallery></ngx-gallery>
+    </nb-card-body>
+    <nb-card-footer>
+      <nb-radio-group [(value)]="selectedOption">
+        <nb-radio value="0">TRUE</nb-radio>
+        <nb-radio value="1">FALSE</nb-radio>
+        
+      </nb-radio-group>
+    </nb-card-footer>
+  </nb-card>
