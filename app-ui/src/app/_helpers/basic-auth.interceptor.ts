@@ -10,11 +10,12 @@ export class BasicAuthInterceptor implements HttpInterceptor {
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         // add authorization header with jwt auth credentials if available
-        const currentUser = this.authenticationService.currentUserValue;
-        if (currentUser) {
+        const accessToken = localStorage.getItem('accessToken');
+        const userEmail = localStorage.getItem('user');
+        if (accessToken) {
             request = request.clone({
                 setHeaders: { 
-                    Authorization: `JWT ${currentUser}`
+                    Authorization: accessToken, User: userEmail
                 }
             });
         }

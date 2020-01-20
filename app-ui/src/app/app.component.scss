@@ -6,14 +6,15 @@
   }
 
 
-.image {
-  width: 48px;
-  height: 48px;
+.mainimage {
+  width: 30px;
+  height: 30px;
   border-radius: 0;
   object-fit: fill;
 }
 
-app-header {
-  flex: 1;
+nb-layout-header {
+  // flex: 1;
   overflow: hidden;
+  height: 60px;
 }

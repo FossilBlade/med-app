@@ -19,6 +19,8 @@ import { BasicAuthInterceptor, ErrorInterceptor } from "./_helpers";
 
 import { FormsModule } from "@angular/forms";
 
+
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -34,7 +36,10 @@ import { FormsModule } from "@angular/forms";
     FormsModule,
     
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: BasicAuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

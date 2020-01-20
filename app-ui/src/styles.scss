@@ -7,50 +7,50 @@
   @include nb-theme-global();
 };
 
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+// @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 
-body { 
-  font-family: Roboto, Arial, sans-serif;
-  margin: 0;
-}
+// body { 
+//   font-family: Roboto, Arial, sans-serif;
+//   margin: 0;
+// }
 
-.basic-container {
-  padding: 5px;
-}
+// .basic-container {
+//   padding: 5px;
+// }
 
-.version-info {
-  font-size: 8pt;
-  float: right;
-}
+// .version-info {
+//   font-size: 8pt;
+//   float: right;
+// }
 
-.container {
-  display: flex;
-  height: 200px;
-  img {
-    width: 200px;
-    object-fit: cover;
-    margin: 5px;
-  }
-}
+// .container {
+//   display: flex;
+//   height: 200px;
+//   img {
+//     width: 200px;
+//     object-fit: cover;
+//     margin: 5px;
+//   }
+// }
 
-.g-overlay {
-  min-width: 320px;
-}
+// .g-overlay {
+//   min-width: 320px;
+// }
 
-gallery {
-  font-size: 16px;
-}
+// gallery {
+//   font-size: 16px;
+// }
 
-img {
-  width: 150px;
-}
+// img {
+//   width: 150px;
+// }
 
-i.ngx-gallery-icon-content.fa.fa-arrow-circle-right{
-  background: black;
-}
+// i.ngx-gallery-icon-content.fa.fa-arrow-circle-right{
+//   background: black;
+// }
 
-i.ngx-gallery-icon-content.fa.fa-arrow-circle-left{
-  background: black;
-  // background: black;
-  // fill: black;
-}
+// i.ngx-gallery-icon-content.fa.fa-arrow-circle-left{
+//   background: black;
+//   // background: black;
+//   // fill: black;
+// }
