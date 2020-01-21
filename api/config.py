@@ -2,6 +2,11 @@
 UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = {'zip'}
 
+# EMAIL SETTINGS
+
+sender_email = "no.reply.vg.showapp@gmail.com"
+password = "vg_Super@123"
+
 # COGNITO SETTINGS
 AWS_DEFAULT_REGION = 'us-east-1'
 AWS_COGNITO_DOMAIN = 'showcase-app.auth.us-east-1.amazoncognito.com'

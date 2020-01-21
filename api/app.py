@@ -11,7 +11,7 @@ from hashlib import md5
 from celery import Celery, group
 import zipfile
 import subprocess
-
+from email_manager import send_mail
 
 log = logging.getLogger(__name__)
 app = Flask(__name__)
@@ -213,7 +213,7 @@ def run_docker(username, data_set_name, algo, zip_file_path):
         output = com_output.stdout.decode('utf-8')
     if com_output.stderr :
         output = 'ERROR: '+com_output.stderr.decode('utf-8')
-        log.info(output)
+        log.error(output)
     return output
 
 
@@ -221,11 +221,19 @@ def run_docker(username, data_set_name, algo, zip_file_path):
 @celery.task
 def send_email(outputs,username, data_set_name):
     log.info('Input Received for: {}, {}'.format(username, data_set_name))
-    if log.isEnabledFor(logging.INFO):
-        for idx,output in enumerate(outputs):
-            log.info('Output {} : {}'.format(idx,output))
+    isError = False
+    for idx, output in enumerate(outputs):
+
+        log.info('Output {} : {}'.format(idx, output))
+        if output.startswith('ERROR'):
+            isError=True
+
 
     log.info('Data is ready for: '+username+" "+data_set_name)
+    if not isError:
+        send_mail(username, data_set_name)
+    else:
+        log.error('ERROR WITH GENERATING DATA. PLEASE REFER THE LOGS.')
 
 
 
