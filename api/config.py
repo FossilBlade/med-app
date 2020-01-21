@@ -18,6 +18,6 @@ AWS_COGNITO_TESTING = False
 
 # ALGO CONFIG
 ALLOWED_ALGOS = {
-    'First Algo': {'docker_run_template': 'docker run -it --rm -v "{}:/input" -v "{}:/output" {}',
+    'First Algo': {'docker_run_template': 'docker run --rm -v "{}:/input" -v "{}:/output" {}',
                'docker_image_name': 'algo_1'}
    }
