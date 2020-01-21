@@ -11,8 +11,9 @@ from hashlib import md5
 from celery import Celery, group
 import zipfile
 import subprocess
-from email_manager import send_mail,send_mail_error
+from email_manager import send_mail, send_mail_error
 import glob
+
 log = logging.getLogger(__name__)
 app = Flask(__name__)
 
@@ -33,27 +34,27 @@ celery.conf.update(app.config)
 
 aws_auth = AWSCognitoAuthentication(app)
 CORS(app, origins="*", allow_headers=[
-    "Content-Type", "Authorization", "Access-Control-Allow-Credentials","User"],
+    "Content-Type", "Authorization", "Access-Control-Allow-Credentials", "User"],
      supports_credentials=True)
-
 
 DCM_NII_FILE_NOT_FOUND_MSG = '.dcm or .nii file not found in zip'
 
 
 def move__dcm_nii_files(extracted_dir_name, final_path):
-    files = glob.glob(os.path.join(extracted_dir_name,'*.dcm'))
+    file = None
 
-    if len(files)<0:
-        files = glob.glob(os.path.join(extracted_dir_name, '*.nii'))
+    for dirpath, dirnames, filenames in os.walk(extracted_dir_name):
+        for filename in [f for f in filenames if f.endswith(".dcm") or f.endswith(".nii")]:
+            file = os.path.join(dirpath, filename)
+            break;
+        if file:
+            break;
 
-
-    if len(files)<0:
+    if not file:
         raise Exception(DCM_NII_FILE_NOT_FOUND_MSG)
     else:
-        parent_path = os.path.dirname(files[0])
+        parent_path = os.path.dirname(file)
         subprocess.call("mv {}/* {}/".format(parent_path, final_path), shell=True)
-
-
 
 
 def get_cognito_user_detail(access_token):
@@ -66,6 +67,7 @@ def get_cognito_user_detail(access_token):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 #
 #
@@ -82,7 +84,6 @@ def index():
 
 @app.route('/aws')
 def aws_cognito_redirect():
-
     access_token = aws_auth.get_access_token(request.args)
     user = get_cognito_user_detail(access_token)
     return jsonify(access_token=access_token, email=user.get('email')), 200
@@ -131,27 +132,26 @@ def upload_file_and_run():
     if file and allowed_file(fileName):
         filename = secure_filename(file.filename)
         zip_save_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataSetName, filename)
-        os.makedirs(os.path.dirname(zip_save_path),exist_ok=True)
+        os.makedirs(os.path.dirname(zip_save_path), exist_ok=True)
         file.save(zip_save_path)
     else:
         return jsonify(success=False, error='file not valid'), 400
 
     job = (group(
-                  run_docker.s(user,dataSetName,algo,zip_save_path) for algo in algos
+        run_docker.s(user, dataSetName, algo, zip_save_path) for algo in algos
 
-       ) | send_email.s(user,dataSetName))
+    ) | send_email.s(user, dataSetName))
 
     job.apply_async()
 
     return jsonify(success=True), 200
 
 
-
-
 @app.route('/algo', methods=['GET'])
 @aws_auth.authentication_required
 def get_algo():
     return jsonify(success=True, algos=list(ALLOWED_ALGOS.keys())), 200
+
 
 @app.route('/dataset', methods=['GET'])
 @aws_auth.authentication_required
@@ -198,11 +198,12 @@ def get_images():
     dataSetName = request.args.get('dataSetName')
     img = request.args.get('img')
 
-    img_path = os.path.join(app.config['UPLOAD_FOLDER'], user,dataSetName,'output',algo,img)
+    img_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataSetName, 'output', algo, img)
 
     print(img_path)
 
     return send_file(img_path, mimetype='image/gif')
+
 
 @celery.task
 def run_docker(username, data_set_name, algo, zip_file_path):
@@ -211,61 +212,54 @@ def run_docker(username, data_set_name, algo, zip_file_path):
     docker_img_name = algo_data.get('docker_image_name')
     docker_template = algo_data.get('docker_run_template')
     zip_base_path = os.path.dirname(zip_file_path)
-    zip_extracted= os.path.join(zip_base_path,'extracted')
+    zip_extracted = os.path.join(zip_base_path, 'extracted')
     zip_extracted_temp = os.path.join(zip_base_path, 'extracted_temp')
-    output_path = os.path.join(zip_base_path, 'output',algo)
-    os.makedirs(zip_extracted,exist_ok=True)
+    output_path = os.path.join(zip_base_path, 'output', algo)
+    os.makedirs(zip_extracted, exist_ok=True)
     os.makedirs(output_path, exist_ok=True)
     os.makedirs(zip_extracted_temp, exist_ok=True)
-
-
 
     with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
         zip_ref.extractall(zip_extracted_temp)
 
     try:
-        move__dcm_nii_files(zip_extracted_temp,zip_extracted)
+        move__dcm_nii_files(zip_extracted_temp, zip_extracted)
     except Exception as e:
         return 'ERROR: ' + str(e)
 
-    dok_comd = docker_template.format(os.path.abspath(zip_extracted),os.path.abspath(output_path),docker_img_name)
+    dok_comd = docker_template.format(os.path.abspath(zip_extracted), os.path.abspath(output_path), docker_img_name)
     log.info(dok_comd)
     com_output = subprocess.run([dok_comd],
-                                 shell=True,
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                shell=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = None
 
-    if com_output.stdout :
+    if com_output.stdout:
         output = com_output.stdout.decode('utf-8')
-    if com_output.stderr :
-        output = 'ERROR: '+com_output.stderr.decode('utf-8')
+    if com_output.stderr:
+        output = 'ERROR: ' + com_output.stderr.decode('utf-8')
         log.error(output)
     return output
 
 
-
 @celery.task
-def send_email(outputs,username, data_set_name):
+def send_email(outputs, username, data_set_name):
     log.info('Input Received for: {}, {}'.format(username, data_set_name))
     isError = False
     for idx, output in enumerate(outputs):
 
         log.info('Output {} : {}'.format(idx, output))
         if output.startswith('ERROR'):
-            isError=True
+            isError = True
             if DCM_NII_FILE_NOT_FOUND_MSG in output:
                 send_mail_error(username, data_set_name, DCM_NII_FILE_NOT_FOUND_MSG)
 
-
-
-    log.info('Data is ready for: '+username+" "+data_set_name)
+    log.info('Data is ready for: ' + username + " " + data_set_name)
     if not isError:
         send_mail(username, data_set_name)
     else:
         log.error('ERROR WITH GENERATING DATA. PLEASE REFER THE LOGS.')
 
 
-
-
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
