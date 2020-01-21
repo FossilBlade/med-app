@@ -11,7 +11,7 @@ from hashlib import md5
 from celery import Celery, group
 import zipfile
 import subprocess
-from email_manager import send_mail
+from email_manager import send_mail,send_mail_error
 import glob
 log = logging.getLogger(__name__)
 app = Flask(__name__)
@@ -50,7 +50,7 @@ def move__dcm_nii_files(extracted_dir_name, final_path):
     if len(files)<0:
         raise Exception(DCM_NII_FILE_NOT_FOUND_MSG)
     else:
-        parent_path = os.path.dirname(files.get(0))
+        parent_path = os.path.dirname(files[0])
         subprocess.call("mv {}/* {}/".format(parent_path, final_path), shell=True)
 
 
