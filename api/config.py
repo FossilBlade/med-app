@@ -27,5 +27,5 @@ AWS_COGNITO_TESTING = False
 # ALGO CONFIG
 ALLOWED_ALGOS = {
     'ResNet100': {'docker_run_template': 'docker run --rm -v "{}:/input" -v "{}:/output" {}',
-               'docker_image_name': 'ResNet100'}
+               'docker_image_name': 'res-net-100'}
    }
