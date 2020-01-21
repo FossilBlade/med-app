@@ -15,7 +15,15 @@ export class BasicAuthInterceptor implements HttpInterceptor {
         if (accessToken) {
             request = request.clone({
                 setHeaders: { 
-                    Authorization: accessToken, User: userEmail
+                    Authorization: accessToken
+                }
+            });
+        }
+
+        if (userEmail) {
+            request = request.clone({
+                setHeaders: { 
+                     User: userEmail
                 }
             });
         }
