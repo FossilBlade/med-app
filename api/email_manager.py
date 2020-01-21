@@ -1,20 +1,15 @@
-import email, smtplib, ssl
+import  smtplib, ssl
 
-from email import encoders
-from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import os
-import glob
+
 
 from config import *
 
 
 
-def send_mail(receiver_email,dataset):
+def __generate_and_send(receiver_email,subject,body):
 
-    subject = "Dataset:{} - Ready for viewing".format(dataset)
-    body = "Dataset '{}' has been processed successfully.\nPlease visit https://showapp.vasognosis.com/view to view the generated data".format(dataset)
 
     # Create a multipart message and set headers
     message = MIMEMultipart()
@@ -31,3 +26,18 @@ def send_mail(receiver_email,dataset):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, text)
+
+
+def send_mail(receiver_email,dataset):
+
+    subject = "Dataset:{} - Ready for viewing".format(dataset)
+    body = "Dataset '{}' has been processed successfully.\nPlease visit https://showapp.vasognosis.com/view to view the generated data".format(dataset)
+
+    __generate_and_send(receiver_email,subject,body)
+
+def send_mail_error(receiver_email,dataset,error_msg):
+
+    subject = "ERROR Dataset:{}".format(dataset)
+    body = "Dataset '{}' failed processing.\nFailure Reason: ".format(error_msg)
+
+    __generate_and_send(receiver_email, subject, body)

@@ -12,7 +12,7 @@ from celery import Celery, group
 import zipfile
 import subprocess
 from email_manager import send_mail
-
+import glob
 log = logging.getLogger(__name__)
 app = Flask(__name__)
 
@@ -35,6 +35,24 @@ aws_auth = AWSCognitoAuthentication(app)
 CORS(app, origins="*", allow_headers=[
     "Content-Type", "Authorization", "Access-Control-Allow-Credentials","User"],
      supports_credentials=True)
+
+
+DCM_NII_FILE_NOT_FOUND_MSG = '.dcm or .nii file not found in zip'
+
+
+def move__dcm_nii_files(extracted_dir_name, final_path):
+    files = glob.glob(os.path.join(extracted_dir_name,'*.dcm'))
+
+    if len(files)<0:
+        files = glob.glob(os.path.join(extracted_dir_name, '*.nii'))
+
+
+    if len(files)<0:
+        raise Exception(DCM_NII_FILE_NOT_FOUND_MSG)
+    else:
+        parent_path = os.path.dirname(files.get(0))
+        subprocess.call("mv {}/* {}/".format(parent_path, final_path), shell=True)
+
 
 
 
@@ -194,13 +212,21 @@ def run_docker(username, data_set_name, algo, zip_file_path):
     docker_template = algo_data.get('docker_run_template')
     zip_base_path = os.path.dirname(zip_file_path)
     zip_extracted= os.path.join(zip_base_path,'extracted')
+    zip_extracted_temp = os.path.join(zip_base_path, 'extracted_temp')
     output_path = os.path.join(zip_base_path, 'output',algo)
     os.makedirs(zip_extracted,exist_ok=True)
     os.makedirs(output_path, exist_ok=True)
+    os.makedirs(zip_extracted_temp, exist_ok=True)
+
 
 
     with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
-        zip_ref.extractall(zip_extracted)
+        zip_ref.extractall(zip_extracted_temp)
+
+    try:
+        move__dcm_nii_files(zip_extracted_temp,zip_extracted)
+    except Exception as e:
+        return 'ERROR: ' + str(e)
 
     dok_comd = docker_template.format(os.path.abspath(zip_extracted),os.path.abspath(output_path),docker_img_name)
     log.info(dok_comd)
@@ -227,6 +253,9 @@ def send_email(outputs,username, data_set_name):
         log.info('Output {} : {}'.format(idx, output))
         if output.startswith('ERROR'):
             isError=True
+            if DCM_NII_FILE_NOT_FOUND_MSG in output:
+                send_mail_error(username, data_set_name, DCM_NII_FILE_NOT_FOUND_MSG)
+
 
 
     log.info('Data is ready for: '+username+" "+data_set_name)
