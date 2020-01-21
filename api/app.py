@@ -188,6 +188,7 @@ def get_images():
 
 @celery.task
 def run_docker(username, data_set_name, algo, zip_file_path):
+    log.info('Input Received: {}, {}, {}, {}'.format(username, data_set_name, algo, zip_file_path))
     algo_data = ALLOWED_ALGOS.get(algo)
     docker_img_name = algo_data.get('docker_image_name')
     docker_template = algo_data.get('docker_run_template')
@@ -201,7 +202,7 @@ def run_docker(username, data_set_name, algo, zip_file_path):
     with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
         zip_ref.extractall(zip_extracted)
 
-    dok_comd = docker_template.format(zip_extracted,output_path,docker_img_name)
+    dok_comd = docker_template.format(os.path.abspath(zip_extracted),os.path.abspath(output_path),docker_img_name)
     log.info(dok_comd)
     com_output = subprocess.run([dok_comd],
                                  shell=True,
@@ -211,7 +212,7 @@ def run_docker(username, data_set_name, algo, zip_file_path):
     if com_output.stdout :
         output = com_output.stdout.decode('utf-8')
     if com_output.stderr :
-        output = com_output.stderr.decode('utf-8')
+        output = 'ERROR: '+com_output.stderr.decode('utf-8')
         log.info(output)
     return output
 
@@ -219,7 +220,10 @@ def run_docker(username, data_set_name, algo, zip_file_path):
 
 @celery.task
 def send_email(outputs,username, data_set_name):
-    log.info(outputs)
+    log.info('Input Received for: {}, {}'.format(username, data_set_name))
+    if log.isEnabledFor(logging.INFO):
+        for idx,output in enumerate(outputs):
+            log.info('Output {} : {}'.format(idx,output))
 
     log.info('Data is ready for: '+username+" "+data_set_name)
 

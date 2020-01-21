@@ -2,4 +2,4 @@ docker run --name redis -p 6379:6379 -d redis
 
 celery worker -A app.celery --loglevel=info
 
-scp -i "C:\Users\rs1614\Desktop\FL\med\TEMP_XNAT.pem" -r app-ui ubunut@ec2-3-133-119-197.us-east-2.compute.amazonaws.com:/tmp
+ssh -i "C:\Users\rs1614\Desktop\FL\med\TEMP_XNAT.pem" ubuntu@3.12.11.252 "rm -rf /tmp/app-ui" && scp -i "C:\Users\rs1614\Desktop\FL\med\TEMP_XNAT.pem" -r app-ui ubuntu@3.12.11.252:/tmp && ssh -i "C:\Users\rs1614\Desktop\FL\med\TEMP_XNAT.pem" ubuntu@3.12.11.252 "sudo rm -rf /var/www/html/* && sudo mv /tmp/app-ui/* /var/www/html/ && sudo chmod -R 644 /var/www/html/*"
