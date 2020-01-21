@@ -5,6 +5,8 @@
 export const environment = {
   production: false,
   apiUrl: 'http://127.0.0.1:5000',
+  skip_login: true,
+  test_user : 'raushan2003@gmail.com'
   // cognitoDomain:'showcase-app.auth.us-east-1.amazoncognito.com',
   // cognitoClientId: '698cc0ufsvh074rm4ti6ch3cl3',
   // cognitoLogin: 'http://127.0.0.1:5000/login'
