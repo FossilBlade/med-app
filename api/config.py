@@ -9,11 +9,10 @@ AWS_COGNITO_USER_POOL_ID = 'us-east-1_MsSYezvzn'
 AWS_COGNITO_USER_POOL_CLIENT_ID = '698cc0ufsvh074rm4ti6ch3cl3'
 AWS_COGNITO_USER_POOL_CLIENT_SECRET = '16mbklprm6383lr27sss751kg5jh2ajs617kn0779lggdm23k31l'
 AWS_COGNITO_REDIRECT_URL = 'http://localhost:5000/aws_cognito_redirect'
-AWS_COGNITO_TESTING = True
+AWS_COGNITO_TESTING = False
 
 # ALGO CONFIG
 ALLOWED_ALGOS = {
-    'Algo A': {'docker_run_template': 'docker run -it -v "{}:/input" -v "{}:/output" {}',
-               'docker_image_name': 'algo_a'},
-    'Algo B': {'docker_run_template': 'docker run -it -v "{}:/input" -v "{}:/output" {}',
-               'docker_image_name': 'algo_b'}}
+    'First Algo': {'docker_run_template': 'docker run -it -v "{}:/input" -v "{}:/output" {}',
+               'docker_image_name': 'algo_1'}
+   }
