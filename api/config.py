@@ -3,13 +3,16 @@ UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = {'zip'}
 
 # COGNITO SETTINGS
-AWS_DEFAULT_REGION= 'us-east-1'
-AWS_COGNITO_DOMAIN= 'showcase-app.auth.us-east-1.amazoncognito.com'
-AWS_COGNITO_USER_POOL_ID= 'us-east-1_MsSYezvzn'
-AWS_COGNITO_USER_POOL_CLIENT_ID= '698cc0ufsvh074rm4ti6ch3cl3'
-AWS_COGNITO_USER_POOL_CLIENT_SECRET= '16mbklprm6383lr27sss751kg5jh2ajs617kn0779lggdm23k31l'
-AWS_COGNITO_REDIRECT_URL= 'http://localhost:5000/aws_cognito_redirect'
+AWS_DEFAULT_REGION = 'us-east-1'
+AWS_COGNITO_DOMAIN = 'showcase-app.auth.us-east-1.amazoncognito.com'
+AWS_COGNITO_USER_POOL_ID = 'us-east-1_MsSYezvzn'
+AWS_COGNITO_USER_POOL_CLIENT_ID = '698cc0ufsvh074rm4ti6ch3cl3'
+AWS_COGNITO_USER_POOL_CLIENT_SECRET = '16mbklprm6383lr27sss751kg5jh2ajs617kn0779lggdm23k31l'
+AWS_COGNITO_REDIRECT_URL = 'http://localhost:5000/aws_cognito_redirect'
 
-
-#ALGO CONFIG
-ALLOWED_ALGOS = ['Algo D', 'ALGO B']
+# ALGO CONFIG
+ALLOWED_ALGOS = {
+    'Algo A': {'docker_run_template': 'docker run -it -v "{}:/input" -v "{}:/output" {}',
+               'docker_image_name': 'algo_a'},
+    'Algo B': {'docker_run_template': 'docker run -it -v "{}:/input" -v "{}:/output" {}',
+               'docker_image_name': 'algo_b'}}

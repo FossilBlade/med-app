@@ -1,16 +1,18 @@
-import cognitojwt
-from config import *
+import os
+from flask import url_for
+user = 'raushan2003@gmail.com'
+data = {}
+scan_path = os.path.join('uploads', user)
+for x in os.walk(scan_path):
+    for ds in x[1]:
+        data[ds] = {}
+        # algo_img_data = {}
+        for algos in os.walk(os.path.join(x[0], ds, 'output')):
+            for algo in algos[1]:
+                for images in os.walk(os.path.join(x[0], ds, 'output',algo)):
+                    list_img = [img for img in images[2] ]
+                    data[ds].update({algo:list_img})
+                    break
+    break
 
-id_token = 'eyJraWQiOiJzZUNXZnVzWFZCN3hCdW8rWHlRZ25KbEVHWmZcL2xZbkd1NkorcWdPUFpTbz0iLCJhbGciOiJSUzI1NiJ9.eyJhdF9oYXNoIjoib09kdFp1d0E0THdzMjBnRkFIMVBUQSIsInN1YiI6IjljYjFhYjZjLTY2ZWEtNGQ3Mi05NTNiLTIzZDg0MDU4YTdmZSIsImF1ZCI6IjY5OGNjMHVmc3ZoMDc0cm00dGk2Y2gzY2wzIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNTc5MjIxNjA5LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV9Nc1NZZXp2em4iLCJjb2duaXRvOnVzZXJuYW1lIjoiOWNiMWFiNmMtNjZlYS00ZDcyLTk1M2ItMjNkODQwNThhN2ZlIiwiZXhwIjoxNTc5MjI1MjA5LCJpYXQiOjE1NzkyMjE2MDksImVtYWlsIjoicmF1c2hhbjIwMDNAZ21haWwuY29tIn0.ExECe3cpD8hYbJq1KTtBUzRsmWc1f9Ib2b2COXasNl_X7tO4Bnmlgpt91bEgIE58Xppmxz74kd4mzPrq2Dh4YUYCUR6oNSIboA3zAcps04kWuk5DuUbxbFPQl2hSidTqpQ_aTKyIRneFDO3f_v2t2JbhX9WyknA5pn5QFu4xh9gOosnkRy5ft86NKwtWYLetQzYe2MrPgYDyhqe1ZbHn3YM5GmNNWtUYYZRUusQMJjoXIXTYXXh0kAVrIpBlOf-BaueV6HsgrT7OvEXcZfrCUsABKj9sGyok4_cigpu1QVLx_jMTvkz9ktHliamZ7HtrGJl8KKoCr-gRNHKvWg8OUw&access_token=eyJraWQiOiIyTHRlQnlTK0FKK3N4VytqQmpscVZraUlNb0R0ZmF3bncrdFwvK29GYXNYcz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI5Y2IxYWI2Yy02NmVhLTRkNzItOTUzYi0yM2Q4NDA1OGE3ZmUiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6Im9wZW5pZCBlbWFpbCIsImF1dGhfdGltZSI6MTU3OTIyMTYwOSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfTXNTWWV6dnpuIiwiZXhwIjoxNTc5MjI1MjA5LCJpYXQiOjE1NzkyMjE2MDksInZlcnNpb24iOjIsImp0aSI6ImM4MDM4ZmM3LTk2MTAtNGZkNC05OGEwLTM4OWFhNzU4MzBhOCIsImNsaWVudF9pZCI6IjY5OGNjMHVmc3ZoMDc0cm00dGk2Y2gzY2wzIiwidXNlcm5hbWUiOiI5Y2IxYWI2Yy02NmVhLTRkNzItOTUzYi0yM2Q4NDA1OGE3ZmUifQ.kJMwY1yhui_6PCRVQzaRFXqSpe4dGNVXDszCa1zL4JP7dXZhYy7fCmRfJAO6mGnDMmJlzmCYB3ZxYTdOm1d0AQk7gS5mxcrj0OO0EnFT0mqXITcG3KdPux197kqSWpMrsx7X7IfGa2hjK15d-fZVgpT8FsItLkBEnPMi9gdYdIF3K6IVPRDjRK4ihageeeZZPuJB0adzUgxPElwxBAK3yDuarjF3kBup-Uka6_J8QQ9EckqRUKtDUyriADdHrZLF8lMK11y3KXs3KoOPO_O6n_vBuD1G3cqyzqlwsrfM_B5_1RTHjeCTER0BHxQfv0b1wvSZhhDU932FHEWCiDltaA'
-REGION = AWS_DEFAULT_REGION
-USERPOOL_ID = AWS_COGNITO_USER_POOL_ID
-APP_CLIENT_ID = AWS_COGNITO_USER_POOL_CLIENT_ID
-
-# Sync mode
-verified_claims: dict = cognitojwt.decode(
-    id_token,
-    REGION,
-    USERPOOL_ID,
-    app_client_id=APP_CLIENT_ID,  # Optional
-    testmode=True  # Disable token expiration check for testing purposes
-)
+print(data)
