@@ -91,7 +91,7 @@ def aws_cognito_redirect():
 
 @app.route('/login')
 def sign_in():
-    aws_auth.redirect_url = request.args.get('redirectUrl')
+    # aws_auth.redirect_url = request.args.get('redirectUrl')
     return redirect(aws_auth.get_sign_in_url())
 
 
