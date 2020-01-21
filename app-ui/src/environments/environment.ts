@@ -7,7 +7,7 @@ export const environment = {
   apiUrl: 'http://127.0.0.1:5000',
   // cognitoDomain:'showcase-app.auth.us-east-1.amazoncognito.com',
   // cognitoClientId: '698cc0ufsvh074rm4ti6ch3cl3',
-  cognitoLogin: 'http://127.0.0.1:5000/login'
+  // cognitoLogin: 'http://127.0.0.1:5000/login'
 };
 
 /*

@@ -87,6 +87,10 @@ export class ApiService {
     return this.http.get<AlgoResult>(`${environment.apiUrl}/algo`).pipe(map(response => response))
   }
 
+  getDatasetAndAlgo() {
+    return this.http.get<any>(`${environment.apiUrl}/dataset`).pipe(map(response => response))
+  }
+
   uploadFile(formData: FormData) {
     return this.http.post(`${environment.apiUrl}/upload`, formData, {
       reportProgress: true,

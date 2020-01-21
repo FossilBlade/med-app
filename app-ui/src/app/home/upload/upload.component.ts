@@ -18,11 +18,9 @@ export class UploadComponent implements OnInit {
   uploadStarted:boolean=false;
   uploadComplete:boolean=false;
   errorMsg:string="";
-  constructor(private apiService: ApiService,private cdr: ChangeDetectorRef) {}
+  constructor(private apiService: ApiService,private cdr: ChangeDetectorRef) {
 
-  ngOnInit() {
-
-     this.apiService.getAlgos().subscribe(
+    this.apiService.getAlgos().subscribe(
       data => {
         console.log("Algo Data: " + JSON.stringify(data, null, 2));
         this.algos = data.algos;
@@ -31,6 +29,14 @@ export class UploadComponent implements OnInit {
         console.error("Error getting algos: " + JSON.stringify(err, null, 2));
       }
     );
+
+
+
+  }
+
+  ngOnInit() {
+
+     
     
 
 

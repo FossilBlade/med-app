@@ -39,32 +39,6 @@ export class AuthenticationService {
     return this.currentUserSubject.value;
   }
 
-  // login(username: string, password: string) {
-  //   return this.http
-  //     .post<any>(`${environment.apiUrl}/auth`, { username, password })
-  //     .pipe(
-  //       timeout(1000),
-  //       retry(1),
-  //       catchError((e, c) => {
-  //         return throwError(e);
-  //       }),
-  //       switchMap(authToken => {
-  //         console.log("do something with " + JSON.stringify(authToken));
-
-  //         // store user details and basic auth credentials in local storage to keep user logged in between page refreshes
-  //         // user.authdata = window.btoa(username + ':' + password);
-  //         localStorage.setItem("jwt", JSON.stringify(authToken.access_token));
-  //         this.currentUserSubject.next(authToken.access_token);
-  //         // return user;
-
-  //         return of(authToken.token);
-  //       }),
-  //       finalize(() => {
-  //         console.log("finilize");
-  //       })
-  //     );
-  // }
-
   logout() {
     // remove user from local storage to log user out
     localStorage.removeItem("accessToken");
@@ -72,16 +46,19 @@ export class AuthenticationService {
     // this.currentUserSubject.next(null);
   }
 
-  get_cognito_access_code(code) {
-    return this.http.get<AwsAccess>(`${environment.apiUrl}/aws`,{params:{'code':code}}).pipe(
-      map(access_data => {
-        localStorage.setItem(
-          "accessToken",
-          "Bearer " + JSON.stringify(access_data.access_token)
-        );
-        localStorage.setItem(
-          "user",access_data.email);
+  get_cognito_access_code(code, state) {
+    return this.http
+      .get<AwsAccess>(`${environment.apiUrl}/aws`, {
+        params: { code: code, state: state }
       })
-    );
+      .pipe(
+        map(access_data => {
+          localStorage.setItem(
+            "accessToken",
+            "Bearer " + access_data.access_token
+          );
+          localStorage.setItem("user", access_data.email);
+        })
+      );
   }
 }
