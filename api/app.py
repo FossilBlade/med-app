@@ -229,17 +229,33 @@ def run_docker(username, data_set_name, algo, zip_file_path):
 
     dok_comd = docker_template.format(os.path.abspath(zip_extracted), os.path.abspath(output_path), docker_img_name)
     log.info(dok_comd)
-    com_output = subprocess.run([dok_comd],
-                                shell=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output = None
 
-    if com_output.stdout:
-        output = com_output.stdout.decode('utf-8')
-    if com_output.stderr:
-        output = 'ERROR: ' + com_output.stderr.decode('utf-8')
-        log.error(output)
+    try:
+        output = subprocess.check_output(
+            dok_comd, stderr=subprocess.STDOUT, shell=True,
+            universal_newlines=True)
+    except subprocess.CalledProcessError as exc:
+        output = "ERROR: {} - {}".format(exc.returncode, exc.output)
+    else:
+        print("Output: \n{}\n".format(output))
+
+
     return output
+
+
+
+
+    # com_output = subprocess.run([dok_comd],
+    #                             shell=True,
+    #                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # output = None
+
+    # if com_output.stdout:
+    #     output = com_output.stdout.decode('utf-8')
+    # if com_output.stderr:
+    #     output = 'ERROR: ' + com_output.stderr.decode('utf-8')
+    #     log.error(output)
+    # return output
 
 
 @celery.task
@@ -253,6 +269,7 @@ def send_email(outputs, username, data_set_name):
             isError = True
             if DCM_NII_FILE_NOT_FOUND_MSG in output:
                 send_mail_error(username, data_set_name, DCM_NII_FILE_NOT_FOUND_MSG)
+                return
 
     log.info('Data is ready for: ' + username + " " + data_set_name)
     if not isError:
