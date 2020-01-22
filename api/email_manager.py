@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 
 
 from config import *
-
+from urllib.parse import urlparse
 
 
 def __generate_and_send(receiver_email,subject,body):
@@ -31,7 +31,8 @@ def __generate_and_send(receiver_email,subject,body):
 def send_mail(receiver_email,dataset):
 
     subject = "Dataset:{} - Ready for viewing".format(dataset)
-    body = "Dataset '{}' has been processed successfully.\nPlease visit https://showapp.vasognosis.com/view to view the generated data".format(dataset)
+    url_login = urlparse(AWS_COGNITO_REDIRECT_URL)
+    body = 'Dataset "{}" has been processed successfully.\nPlease click <a href="{}://{}/view"> here </a> to view the generated data'.format(dataset,url_login.scheme,url_login.netloc)
 
     __generate_and_send(receiver_email,subject,body)
 
