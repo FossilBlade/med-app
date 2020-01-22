@@ -39,6 +39,10 @@ export class AuthenticationService {
     return this.currentUserSubject.value;
   }
 
+  verifyToken() {
+    return this.http.get(`${environment.apiUrl}/verifytoken`);
+  }
+
   logout() {
     // remove user from local storage to log user out
     localStorage.removeItem("accessToken");

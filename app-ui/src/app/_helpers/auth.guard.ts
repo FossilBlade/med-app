@@ -26,8 +26,10 @@ export class AuthGuard implements CanActivate {
     const accessToken = localStorage.getItem("accessToken");
     console.log("Current User: " + currentUser);
     if (currentUser && accessToken) {
-      // logged in so return true
-      return true;
+
+      this.authenticationService.verifyToken().subscribe(data=>{ return true;})
+      // // logged in so return true
+      // return true;
     }
     console.log("User Not loged. Naviagating to Login Page.");
     // not logged in so redirect to login page with the return url

@@ -43,7 +43,8 @@ export class ViewComponent implements OnInit {
   no_images_msg: boolean = false;
   saveSuccess: boolean = false;
   saveFailed: boolean = false;
-  showSubmitBtn:boolean=true;
+  showSubmitBtn: boolean = true;
+  saveFailedMsg:string;
 
   @ViewChild("gallery", { static: true }) gallery: NgxGalleryComponent;
 
@@ -157,20 +158,34 @@ export class ViewComponent implements OnInit {
     let algo = this.selectedAlgo;
     let data = this.selected_algo_img_data[algo];
 
-    this.apiService.saveAns(dataset, algo, data).subscribe(
-      data => {
-        console.log(data);        
-        this.saveSuccess = true;
-        this.showSubmitBtn=false;
-        this.cdr.detectChanges();
-      },
-      err => {
-        console.log(err);        
-        this.saveFailed = true;
-        this.showSubmitBtn=false;
-        this.cdr.detectChanges();
+    let error_images: string[] = [];
+    for (var img_data of this.selected_algo_img_data[algo]) {
+      if (img_data.ans == null) {
+        error_images.push(img_data.img);
       }
-    );
+    }
+
+    if (error_images) {
+      this.saveFailed = true;
+      this.saveFailedMsg = 'All images have not been answered. Remaining ones are: '+error_images;
+      this.cdr.detectChanges();
+    } else {
+      this.apiService.saveAns(dataset, algo, data).subscribe(
+        data => {
+          console.log(data);
+          this.saveSuccess = true;
+          this.showSubmitBtn = false;
+          this.cdr.detectChanges();
+        },
+        err => {
+          console.log(err);
+          this.saveFailed = true;
+          this.showSubmitBtn = false;
+          this.saveFailedMsg = 'Saving failed. Please try again or contact admin';
+          this.cdr.detectChanges();
+        }
+      );
+    }
   }
 
   onDataSetSelect(value) {
@@ -204,7 +219,7 @@ export class ViewComponent implements OnInit {
     for (var img of this.selected_algo_img_data[this.selectedAlgo]) {
       const img_url = `${environment.apiUrl}/image?token=${localStorage.getItem(
         "accessToken"
-      )}&user=${localStorage.getItem("user")}&dataSetName=${
+      )}&user=${localStorage.getItem("user")}&dataset=${
         this.selectedDataSet
       }&algo=${value}&img=${img.img}`;
 

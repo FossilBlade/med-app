@@ -48,7 +48,7 @@
   <nb-card-footer *ngIf="selectedAlgo">
     <button *ngIf="showSubmitBtn" nbButton (click)="OnSubmit($event)">Submit</button>
     <nb-alert *ngIf="saveSuccess" outline="success">Saved successfully</nb-alert>
-    <nb-alert *ngIf="saveFailed" outline="danger">Saving failed. Please try again or contact admin.</nb-alert>
+    <nb-alert *ngIf="saveFailed" outline="danger">{{saveFailedMsg}}</nb-alert>
   </nb-card-footer>
 
 

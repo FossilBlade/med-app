@@ -42,7 +42,7 @@ CORS(app, origins="*", allow_headers=[
 DCM_NII_FILE_NOT_FOUND_MSG = '.dcm or .nii file not found in zip'
 
 
-def move__dcm_nii_files(extracted_dir_name, final_path):
+def move_dcm_nii_files(extracted_dir_name, final_path):
     file = None
 
     for dirpath, dirnames, filenames in os.walk(extracted_dir_name):
@@ -71,10 +71,10 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-#
-#
-# def get_user(request_args):
-
+@app.route('/verifytoken')
+@aws_auth.authentication_required
+def verify_toekn():
+    return jsonify(success=True), 200
 
 @app.route('/')
 @aws_auth.authentication_required
@@ -88,7 +88,7 @@ def index():
 def aws_cognito_redirect():
     access_token = aws_auth.get_access_token(request.args)
     user = get_cognito_user_detail(access_token)
-    return jsonify(access_token=access_token, email=user.get('email')), 200
+    return jsonify(success=True,access_token=access_token, email=user.get('email')), 200
 
 
 @app.route('/login')
@@ -269,7 +269,7 @@ def run_docker(username, data_set_name, algo, zip_file_path):
         zip_ref.extractall(zip_extracted_temp)
 
     try:
-        move__dcm_nii_files(zip_extracted_temp, zip_extracted)
+        move_dcm_nii_files(zip_extracted_temp, zip_extracted)
     except Exception as e:
         return 'ERROR: ' + str(e)
 
