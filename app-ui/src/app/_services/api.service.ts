@@ -45,7 +45,7 @@ export class ApiService {
   }
 
   saveAns(dataset,algo,data) {
-    return this.http.post(`${environment.apiUrl}/upload`, {dataset:dataset,algo:algo,data:data}, {    
+    return this.http.post(`${environment.apiUrl}/ans`, {dataset:dataset,algo:algo,data:data}, {    
     });
   }
 }

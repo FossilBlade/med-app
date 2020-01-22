@@ -171,7 +171,9 @@ def get_dataset_algo():
                 for algo in algos[1]:
                     for images in os.walk(os.path.join(x[0], ds, 'output', algo)):
                         if 'result.json' in images[2]:
-                            list_img = json.load(os.path.join(x[0], ds, 'output', algo,'result.json'))
+                            with open(os.path.join(x[0], ds, 'output', algo,'result.json')) as json_file:
+                                list_img = json.load(json_file)
+                            # list_img = json.load(os.path.join(x[0], ds, 'output', algo,'result.json'))
                         else:
                             res= sorted(images[2])
                             list_img = [{'img':img,'ans':None} for img in res if img != 'result.json']
@@ -192,24 +194,24 @@ def save_ans():
     if  request.headers.get('User') is None:
         return jsonify(success=False, error='User not supplied'), 400
 
-    if request.args.get('dataset') is None:
+    if req_data.get('dataset') is None:
         return jsonify(success=False, error='dataset not supplied'), 400
 
-    if request.args.get('algo') is None:
+    if req_data.get('algo') is None:
         return jsonify(success=False, error='algo not supplied'), 400
 
-    if request.args.get('data') is None:
+    if req_data.get('data') is None:
         return jsonify(success=False, error='data not supplied'), 400
 
     user = request.headers.get('User')
-    dataset= request.args.get('dataset')
-    algo= request.args.get('algo')
-    data = request.args.get('data')
+    dataset= req_data.get('dataset')
+    algo= req_data.get('algo')
+    data = req_data.get('data')
 
     result_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, 'output', algo, 'result.json')
 
     with open(result_path, 'w') as outfile:
-        json.dump(data, outfile)
+        json.dump(data, outfile,indent=2)
 
     return jsonify(success=True, data='saved successfully'), 200
 

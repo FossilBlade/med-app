@@ -18,7 +18,7 @@
 
     </div>
   </nb-card-header>
-  <nb-card-body>
+  <nb-card-body *ngIf="selectedAlgo">
 
     <div *ngFor="let img of images; index as idx" class="row">
       <div class="column">
@@ -45,10 +45,10 @@
     <nb-alert *ngIf="no_images_msg" outline="danger">No Images generated for this dataset and algo</nb-alert>
 
   </nb-card-body>
-  <nb-card-footer>
-    <button nbButton (click)="OnSubmit($event)">Submit</button>
-    <nb-alert *ngIf="saveSuccess" outline="success">Saved Successfully</nb-alert>
-    <nb-alert *ngIf="saveFailed" outline="danger">Saving Failed. Please try again or contact Admin.</nb-alert>
+  <nb-card-footer *ngIf="selectedAlgo">
+    <button *ngIf="showSubmitBtn" nbButton (click)="OnSubmit($event)">Submit</button>
+    <nb-alert *ngIf="saveSuccess" outline="success">Saved successfully</nb-alert>
+    <nb-alert *ngIf="saveFailed" outline="danger">Saving failed. Please try again or contact admin.</nb-alert>
   </nb-card-footer>
 
 
