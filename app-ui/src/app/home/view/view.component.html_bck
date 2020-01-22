@@ -1,0 +1,53 @@
+<nb-card>
+  <nb-card-body>
+
+<div>
+    <div id="left-bar">
+      <nb-select placeholder="Data Set" (selectedChange)="onDataSetSelect($event)">
+        <nb-option *ngFor="let ds of datasets" [value]="ds">{{ds}}</nb-option>        
+      </nb-select>
+      &nbsp;
+      <nb-select *ngIf="algos" placeholder="Select Algo" (selectedChange)="onAlgoSelect($event)">
+        <nb-option *ngFor="let algo of algos" [value]="algo">{{algo}}</nb-option>
+        
+      </nb-select>
+           
+      
+    </div>
+   
+    <div *ngIf="showGallery" id="right-bar">
+      <!-- <div id="center-bar"> -->
+      <button nbButton (click)="next(0,gallery.selectedIndex)" [disabled]="!gallery.canShowPrev()">Show Prev</button>
+      &nbsp;
+      <button nbButton (click)="next(1,gallery.selectedIndex)" [disabled]="!gallery.canShowNext()">Show Next</button>
+      <!-- </div> -->
+      <nb-radio-group id="radioGrupo" [value]="selectedOption" (valueChange)="onRadioChange($event)" layout="row" layout-align="start center">
+        <nb-radio value="1">TRUE</nb-radio>
+        <nb-radio value="0">FALSE</nb-radio>
+      </nb-radio-group>
+      &nbsp;
+      <button nbButton *ngIf='showSubmit' (click)="OnSubmit($event)">Submit</button>
+      <nb-alert *ngIf="showError && !selectedOption" outline="danger">Select TRUE/FALSE</nb-alert>
+
+    </div>
+  </div>
+    <!-- <button nbButton (click)="prev($event)" [disabled]="!gallery.canShowPrev()">Show Prev</button>
+    <button nbButton (click)="next($event)" [disabled]="!gallery.canShowNext()">Show Next</button> -->
+    
+
+    <nb-alert *ngIf="no_images_msg" outline="danger">No Images generated for this dataset and algo</nb-alert>
+
+    <ngx-gallery [options]="galleryOptions" [images]="galleryImages" #gallery>
+    </ngx-gallery>
+
+    <!-- </div> -->
+
+
+
+
+
+  </nb-card-body>
+
+
+
+</nb-card>

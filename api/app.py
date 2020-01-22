@@ -168,7 +168,11 @@ def get_dataset_algo():
             for algos in os.walk(os.path.join(x[0], ds, 'output')):
                 for algo in algos[1]:
                     for images in os.walk(os.path.join(x[0], ds, 'output', algo)):
-                        list_img = [img for img in images[2]]
+                        if 'result.json' in images[2]:
+                            list_img = json.load(os.path.join(x[0], ds, 'output', algo,'result.json'))
+                        else:
+                            list_img = [{'img':img,'ans':None} for img in images[2]]
+
                         data[ds].update({algo: list_img})
                         break
         break
