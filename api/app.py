@@ -1,5 +1,7 @@
 from flask import Flask, redirect, request, jsonify, send_file
 from flask_awscognito import AWSCognitoAuthentication
+from flask_awscognito.exceptions import TokenVerifyError
+
 from config import *
 import os
 import logging
@@ -99,7 +101,7 @@ def sign_in():
 @aws_auth.authentication_required
 def upload_file_and_run():
     algos = []
-    dataSetName = None
+    dataset = None
 
     print(request.files)
     print(request.form)
@@ -117,30 +119,30 @@ def upload_file_and_run():
     if fileName == '':
         return jsonify(success=False, error='filename not present'), 400
 
-    if 'algosToRun' not in request.form or not request.form.get('algosToRun'):
+    if not request.form.get('algosToRun'):
         return jsonify(success=False, error='algos to run empty or not present'), 400
     else:
         algos = json.loads(request.form.get('algosToRun'))
         print(algos)
 
-    if 'dataSetName' not in request.form or not request.form.get('dataSetName'):
-        return jsonify(success=False, error='dataSetName empty or not present'), 400
+    if not request.form.get('dataset'):
+        return jsonify(success=False, error='dataset empty or not present'), 400
     else:
-        dataSetName = request.form.get('dataSetName')
-        print(dataSetName)
+        dataset = request.form.get('dataset')
+        print(dataset)
 
     if file and allowed_file(fileName):
         filename = secure_filename(file.filename)
-        zip_save_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataSetName, filename)
+        zip_save_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, filename)
         os.makedirs(os.path.dirname(zip_save_path), exist_ok=True)
         file.save(zip_save_path)
     else:
         return jsonify(success=False, error='file not valid'), 400
 
     job = (group(
-        run_docker.s(user, dataSetName, algo, zip_save_path) for algo in algos
+        run_docker.s(user, dataset, algo, zip_save_path) for algo in algos
 
-    ) | send_email.s(user, dataSetName))
+    ) | send_email.s(user, dataset))
 
     job.apply_async()
 
@@ -171,7 +173,8 @@ def get_dataset_algo():
                         if 'result.json' in images[2]:
                             list_img = json.load(os.path.join(x[0], ds, 'output', algo,'result.json'))
                         else:
-                            list_img = [{'img':img,'ans':None} for img in images[2]]
+                            res= sorted(images[2])
+                            list_img = [{'img':img,'ans':None} for img in res if img != 'result.json']
 
                         data[ds].update({algo: list_img})
                         break
@@ -181,28 +184,65 @@ def get_dataset_algo():
 
     return jsonify(success=True, data=data), 200
 
+@app.route('/ans', methods=['POST'])
+@aws_auth.authentication_required
+def save_ans():
+    req_data = request.get_json(force=True)
+
+    if  request.headers.get('User') is None:
+        return jsonify(success=False, error='User not supplied'), 400
+
+    if request.args.get('dataset') is None:
+        return jsonify(success=False, error='dataset not supplied'), 400
+
+    if request.args.get('algo') is None:
+        return jsonify(success=False, error='algo not supplied'), 400
+
+    if request.args.get('data') is None:
+        return jsonify(success=False, error='data not supplied'), 400
+
+    user = request.headers.get('User')
+    dataset= request.args.get('dataset')
+    algo= request.args.get('algo')
+    data = request.args.get('data')
+
+    result_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, 'output', algo, 'result.json')
+
+    with open(result_path, 'w') as outfile:
+        json.dump(data, outfile)
+
+    return jsonify(success=True, data='saved successfully'), 200
 
 @app.route('/image', methods=['GET'])
-# @aws_auth.authentication_required
 def get_images():
+
+    if 'token' not in request.args or request.args.get('token') is None:
+        return jsonify(success=False, error='User not supplied'), 400
+    else:
+        access_token=request.args.get('token')
+        try:
+            aws_auth.token_service.verify(access_token)
+        except TokenVerifyError as e:
+            return jsonify(success=False, error=str(e)),401
+
     if 'user' not in request.args or request.args.get('user') is None:
         return jsonify(success=False, error='User not supplied'), 400
 
     if 'algo' not in request.args or not request.args.get('algo'):
         return jsonify(success=False, error='algo empty or not present'), 400
 
-    if 'dataSetName' not in request.args or not request.args.get('dataSetName'):
-        return jsonify(success=False, error='dataSetName empty or not present'), 400
+    if 'dataset' not in request.args or not request.args.get('dataset'):
+        return jsonify(success=False, error='dataset empty or not present'), 400
 
     if 'img' not in request.args or not request.args.get('img'):
         return jsonify(success=False, error='img empty or not present'), 400
 
     user = request.args.get('user')
     algo = request.args.get('algo')
-    dataSetName = request.args.get('dataSetName')
+    dataset = request.args.get('dataset')
     img = request.args.get('img')
 
-    img_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataSetName, 'output', algo, img)
+    img_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, 'output', algo, img)
 
     print(img_path)
 

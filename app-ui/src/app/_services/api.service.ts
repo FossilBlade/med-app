@@ -28,60 +28,6 @@ import { AlgoResult } from '../_models/algo-result';
 export class ApiService {
   constructor(private http: HttpClient) {}
 
-  check_status_ip_cidr(ipcidr: string) {
-    let params = new HttpParams().set("ipcidr", ipcidr);
-
-    return this.http
-      .get<CheckResult>(`${environment.apiUrl}/check`, { params: params })
-      .pipe(
-        // timeout(5000),
-        // retry(0),
-        catchError((e, c) => {
-          return throwError(e);
-        }),
-        switchMap(resp => {
-          console.log("Response Recieved: " + JSON.stringify(resp));
-
-          return of(resp);
-        }),
-        finalize(() => {
-          console.log("finilize");
-        })
-      );
-  }
-
-  run_job(ipcidr: string) {
-    let params = new HttpParams().set("ipcidr", ipcidr);
-
-    return this.http
-      .get<any>(`${environment.apiUrl}/job`, { params: params })
-      .pipe(
-        timeout(5000),
-        retry(0),
-        catchError((e, c) => {
-          return throwError(e);
-        }),
-        switchMap(resp => {
-          console.log("Response Recieved: " + JSON.stringify(resp));
-
-          return of(resp);
-        }),
-        finalize(() => {
-          console.log("finilize");
-        })
-      );
-  }
-
-  downloadFile(ipcidr: string, progressbar: number, changePusher): any {
-    let params = new HttpParams().set("ipcidr", ipcidr);
-
-    return this.http.get(`${environment.apiUrl}/report`, {
-      params: params,
-      responseType: "blob",
-      reportProgress: true,
-      observe: "events"
-    });
-  }
 
   getAlgos() {
     return this.http.get<AlgoResult>(`${environment.apiUrl}/algo`).pipe(map(response => response))
@@ -95,6 +41,11 @@ export class ApiService {
     return this.http.post(`${environment.apiUrl}/upload`, formData, {
       reportProgress: true,
       observe: "events"
+    });
+  }
+
+  saveAns(dataset,algo,data) {
+    return this.http.post(`${environment.apiUrl}/upload`, {dataset:dataset,algo:algo,data:data}, {    
     });
   }
 }

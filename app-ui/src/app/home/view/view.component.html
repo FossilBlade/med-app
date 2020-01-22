@@ -1,5 +1,5 @@
 <nb-card>
-  <nb-card-body>
+  <nb-card-header>
 
     <div>
       <div id="left-bar">
@@ -17,8 +17,8 @@
 
 
     </div>
-  </nb-card-body>
-  <nb-card-footer>
+  </nb-card-header>
+  <nb-card-body>
 
     <div *ngFor="let img of images; index as idx" class="row">
       <div class="column">
@@ -44,8 +44,11 @@
     </div>
     <nb-alert *ngIf="no_images_msg" outline="danger">No Images generated for this dataset and algo</nb-alert>
 
-
-
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton (click)="OnSubmit($event)">Submit</button>
+    <nb-alert *ngIf="saveSuccess" outline="success">Saved Successfully</nb-alert>
+    <nb-alert *ngIf="saveFailed" outline="danger">Saving Failed. Please try again or contact Admin.</nb-alert>
   </nb-card-footer>
 
 

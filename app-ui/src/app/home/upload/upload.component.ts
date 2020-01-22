@@ -71,7 +71,7 @@ export class UploadComponent implements OnInit {
     const formData = new FormData();
     formData.append("file", fileData);    
     formData.append("algosToRun",JSON.stringify(this.selectedAlgos));
-    formData.append("dataSetName", this.dataName);
+    formData.append("dataset", this.dataName);
 
     this.uploadStarted=true;
     this.apiService.uploadFile(formData).subscribe(events => {

@@ -38,10 +38,13 @@ export class ViewComponent implements OnInit {
   datasets:string[];
   algos:string[];
   dataset_algo_response:any;
-  showSubmit:boolean=false;
+  // showSubmit:boolean=false;
   showGallery:boolean=false;
   curretImageIndx:number;
   no_images_msg:boolean=false;
+  saveSuccess:boolean=false;
+  saveFailed:boolean=false;
+  
 
   @ViewChild("gallery", { static: true }) gallery: NgxGalleryComponent;
 
@@ -163,6 +166,14 @@ export class ViewComponent implements OnInit {
   }
 
   OnSubmit(event){
+
+    let dataset=this.selectedDataSet;
+    let algo= this.selectedAlgo;
+    let data = this.selected_algo_img_data[algo];
+
+    this.apiService.saveAns(dataset,algo,data).subscribe(data=>{this.saveSuccess = true},err=>{this.saveFailed=true})
+
+
   }
 
 
@@ -198,7 +209,7 @@ export class ViewComponent implements OnInit {
     
     for (var img of this.selected_algo_img_data[this.selectedAlgo]) {
 
-      const img_url = `${environment.apiUrl}/image?user=${localStorage.getItem('user')}&dataSetName=${this.selectedDataSet}&algo=${value}&img=${img.img}`
+      const img_url = `${environment.apiUrl}/image?token=${localStorage.getItem('accessToken')}&user=${localStorage.getItem('user')}&dataSetName=${this.selectedDataSet}&algo=${value}&img=${img.img}`
 
       this.images.push({url:img_url,ans:img.ans,name:img.img})
       

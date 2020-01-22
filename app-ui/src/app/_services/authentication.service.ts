@@ -55,7 +55,7 @@ export class AuthenticationService {
         map(access_data => {
           localStorage.setItem(
             "accessToken",
-            "Bearer " + access_data.access_token
+             access_data.access_token
           );
           localStorage.setItem("user", access_data.email);
         })
