@@ -103,9 +103,9 @@ def get_access_token():
         aws_auth.token_service.verify(access_token)
     except TokenVerifyError as e:
         return jsonify(success=False, error=str(e)), 401
-    claims = aws_auth.claims
+    claims = aws_auth.token_service.claims
     user_groups = claims.get('cognito:groups') if claims else None
-    
+
     return jsonify(success=True, access_token=access_token, email=email,
                    user_is_admin=isAdmin(user_groups)), 200
 
