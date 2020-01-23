@@ -42,6 +42,11 @@ CORS(app, origins="*", allow_headers=[
 
 DCM_NII_FILE_NOT_FOUND_MSG = '.dcm or .nii file not found in zip'
 
+def isAdmin(user):
+    if user in ADMIN_USER:
+        return True
+    else:
+        return False
 
 def move_dcm_nii_files(extracted_dir_name, final_path):
     file = None
@@ -86,10 +91,10 @@ def index():
 
 
 @app.route('/aws')
-def aws_cognito_redirect():
+def get_access_token():
     access_token = aws_auth.get_access_token(request.args)
-    user = get_cognito_user_detail(access_token)
-    return jsonify(success=True,access_token=access_token, email=user.get('email'), user_is_admin=isAdmin(user)), 200
+    user = get_cognito_user_detail(access_token).get('email')
+    return jsonify(success=True,access_token=access_token, email=user, user_is_admin=isAdmin(user)), 200
 
 
 @app.route('/login')
@@ -188,11 +193,7 @@ def get_dataset_algo():
     return jsonify(success=True, data=data), 200
 
 
-def isAdmin(user):
-    if user in ADMIN_USER:
-        return True
-    else:
-        return False
+
 
 
 @app.route('/alldataset', methods=['GET'])
