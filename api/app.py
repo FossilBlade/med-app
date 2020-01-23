@@ -43,9 +43,7 @@ CORS(app, origins="*", allow_headers=[
 DCM_NII_FILE_NOT_FOUND_MSG = '.dcm or .nii file not found in zip'
 
 
-def isAdmin():
-    claims = aws_auth.claims
-    user_groups = claims.get('cognito:groups')
+def isAdmin(user_groups):
     if user_groups and len(user_groups) > 0 and AWS_COGNITO_ADMIN_GRP_NAME in user_groups:
         return True
     else:
@@ -93,13 +91,16 @@ def index():
     claims = aws_auth.claims  # also available through g.cognito_claims
     return jsonify({'claims': claims})
 
+
 @app.route('/aws')
 def get_access_token():
     access_token = aws_auth.get_access_token(request.args)
     user_data = get_cognito_user_detail(access_token)
     email = user_data.get('email')
+    claims = aws_auth.claims
+    user_groups = claims.get('cognito:groups') if claims else None
     return jsonify(success=True, access_token=access_token, email=email,
-                   user_is_admin=isAdmin()), 200
+                   user_is_admin=isAdmin(user_groups)), 200
 
 
 @app.route('/login')
@@ -201,11 +202,9 @@ def get_dataset_algo():
 @app.route('/alldataset', methods=['GET'])
 @aws_auth.authentication_required
 def get_all_dataset_algo():
-    # if 'User' not in request.headers or request.headers.get('User') is None:
-    #     return jsonify(success=False, error='User not supplied'), 400
-    # header_user = request.headers.get('User')
-
-    if not isAdmin():
+    claims = aws_auth.claims
+    user_groups = claims.get('cognito:groups') if claims else None
+    if not isAdmin(user_groups):
         return jsonify(success=False, error='user is not an admin'), 400
 
     users = []
@@ -242,12 +241,10 @@ def get_all_dataset_algo():
 @app.route('/download', methods=['GET'])
 @aws_auth.authentication_required
 def download():
-    # if request.headers.get('User') is None:
-    #     return jsonify(success=False, error='User not supplied'), 400
-    #
-    # header_user = request.headers.get('User')
+    claims = aws_auth.claims
+    user_groups = claims.get('cognito:groups') if claims else None
 
-    if not isAdmin():
+    if not isAdmin(user_groups):
         return jsonify(success=False, error='user is not an admin'), 400
 
     if 'user' not in request.args or request.args.get('user') is None:
