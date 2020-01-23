@@ -48,7 +48,7 @@ export class AdminViewComponent implements OnInit {
   download_error: string;
   downloading: boolean;
   downloaded: boolean;
-  download_prog:string = '0%';
+  download_prog:number = 0;
 
   @ViewChild("gallery", { static: true }) gallery: NgxGalleryComponent;
 
@@ -80,7 +80,7 @@ export class AdminViewComponent implements OnInit {
     this.download_error = null;
     this.downloading = false;
     this.downloaded = false;
-    this.download_prog = '0%';
+    this.download_prog = 0;
 
     this.cdr.detectChanges();
 
@@ -125,7 +125,7 @@ export class AdminViewComponent implements OnInit {
             const percentDone = Math.round(
               (100 * result.loaded) / result.total
             );
-            this.download_prog = percentDone + "%";
+            this.download_prog = percentDone;
             console.log(this.download_prog);
           }
 

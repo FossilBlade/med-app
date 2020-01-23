@@ -3,26 +3,27 @@
 
     <div>
       <div id="left-bar">
-        <nb-select placeholder="User" (selectedChange)="onUserSelect($event)">
+        <nb-select placeholder="User" (selectedChange)="onUserSelect($event)" [disabled]="downloading">
           <nb-option *ngFor="let user of users" [value]="user">{{user}}</nb-option>
         </nb-select>
         &nbsp;
         <nb-select *ngIf="datasets && datasets.length>0" placeholder="Data Set"
-          (selectedChange)="onDataSetSelect($event)">
+          (selectedChange)="onDataSetSelect($event)" [disabled]="downloading">
           <nb-option *ngFor="let ds of datasets" [value]="ds">{{ds}}</nb-option>
         </nb-select>
         &nbsp;
-        <nb-select *ngIf="algos && algos.length>0" placeholder="Select Algo" (selectedChange)="onAlgoSelect($event)">
+        <nb-select *ngIf="algos && algos.length>0" placeholder="Select Algo" (selectedChange)="onAlgoSelect($event)"
+          [disabled]="downloading">
           <nb-option *ngFor="let algo of algos" [value]="algo">{{algo}}</nb-option>
         </nb-select>
 
         &nbsp;
 
-        <button *ngIf="!downloading && images && images.length>0" nbButton (click)="OnDownload($event)">Download</button>
+        <button *ngIf="images && images.length>0" nbButton (click)="OnDownload($event)"
+          [disabled]="downloading">Download</button>
         &nbsp;
         <nb-progress-bar *ngIf="downloading && !download_error" [value]="download_prog" status="success">
-          {{download_prog}}
-        </nb-progress-bar>
+          {{download_prog}}%</nb-progress-bar>
         <nb-alert *ngIf="downloaded && !download_error" outline="success">
           DOWNLOAD COMPLETE
         </nb-alert>
