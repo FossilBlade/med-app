@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     if (environment.skip_login == true) {
-        localStorage.setItem("user", `${environment.test_user}`);
+      localStorage.setItem("user", `${environment.test_user}`);
       return true;
     }
 
@@ -26,14 +26,20 @@ export class AuthGuard implements CanActivate {
     const accessToken = localStorage.getItem("accessToken");
     console.log("Current User: " + currentUser);
     if (currentUser && accessToken) {
+      const data = this.verify_token();
 
-      this.authenticationService.verifyToken().subscribe(data=>{ return true;})
-      // // logged in so return true
+      if (data) return true;
       // return true;
     }
     console.log("User Not loged. Naviagating to Login Page.");
     // not logged in so redirect to login page with the return url
     this.router.navigate(["/login"]);
     return false;
+  }
+
+  async verify_token() {
+    const data = await this.authenticationService.verifyToken().toPromise();
+    console.log("Promise resolved with: " + JSON.stringify(data));
+    return data;
   }
 }
