@@ -97,8 +97,15 @@ def get_access_token():
     access_token = aws_auth.get_access_token(request.args)
     user_data = get_cognito_user_detail(access_token)
     email = user_data.get('email')
+
+    #### This is being done so that claims is set in teh aws_auth
+    try:
+        aws_auth.token_service.verify(access_token)
+    except TokenVerifyError as e:
+        return jsonify(success=False, error=str(e)), 401
     claims = aws_auth.claims
     user_groups = claims.get('cognito:groups') if claims else None
+    
     return jsonify(success=True, access_token=access_token, email=email,
                    user_is_admin=isAdmin(user_groups)), 200
 
