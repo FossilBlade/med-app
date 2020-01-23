@@ -240,21 +240,12 @@ def get_all_dataset_algo():
     return jsonify(success=True, data=final_data), 200
 
 @app.route('/download', methods=['GET'])
+@aws_auth.authentication_required
 def download():
 
-    if not AWS_COGNITO_TESTING:
-        if 'token' not in request.args or request.args.get('token') is None:
-            return jsonify(success=False, error='User not supplied'), 400
-        else:
-            access_token=request.args.get('token')
-            try:
-                aws_auth.token_service.verify(access_token)
-            except TokenVerifyError as e:
-                return jsonify(success=False, error=str(e)),401
-
-
-    if 'User' not in request.headers or request.headers.get('User') is None:
+    if request.headers.get('User') is None:
         return jsonify(success=False, error='User not supplied'), 400
+
     header_user = request.headers.get('User')
 
     if not isAdmin(header_user):
@@ -337,16 +328,16 @@ def get_images():
             except TokenVerifyError as e:
                 return jsonify(success=False, error=str(e)),401
 
-    if 'user' not in request.args or request.args.get('user') is None:
+    if request.args.get('user') is None:
         return jsonify(success=False, error='User not supplied'), 400
 
-    if 'algo' not in request.args or not request.args.get('algo'):
+    if  request.args.get('algo') is None:
         return jsonify(success=False, error='algo empty or not present'), 400
 
-    if 'dataset' not in request.args or not request.args.get('dataset'):
+    if  request.args.get('dataset')  is None:
         return jsonify(success=False, error='dataset empty or not present'), 400
 
-    if 'img' not in request.args or not request.args.get('img'):
+    if request.args.get('img')  is None:
         return jsonify(success=False, error='img empty or not present'), 400
 
     user = request.args.get('user')
