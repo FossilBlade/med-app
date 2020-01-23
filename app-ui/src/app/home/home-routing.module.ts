@@ -3,6 +3,11 @@ import { Routes, RouterModule } from "@angular/router";
 import { HomeComponent } from "./home.component";
 import { UploadComponent } from "./upload/upload.component";
 import { ViewComponent } from "./view/view.component";
+import { AdminViewComponent } from "./admin-view/admin-view.component";
+
+let view;
+if (localStorage.getItem("userIsAdmin") == "yes") view = AdminViewComponent;
+else view = ViewComponent;
 
 const routes: Routes = [
   {
@@ -15,8 +20,12 @@ const routes: Routes = [
       },
       {
         path: "view",
-        component: ViewComponent
-      }
+        component: view
+      },
+      // {
+      //   path: "adminview",
+      //   component: AdminViewComponent
+      // }
     ]
   }
 ];

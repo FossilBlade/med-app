@@ -1,0 +1,67 @@
+<nb-card>
+  <nb-card-header>
+
+    <div>
+      <div id="left-bar">
+        <nb-select placeholder="User" (selectedChange)="onUserSelect($event)">
+          <nb-option *ngFor="let user of users" [value]="user">{{user}}</nb-option>
+        </nb-select>
+        &nbsp;
+        <nb-select *ngIf="datasets && datasets.length>0" placeholder="Data Set" (selectedChange)="onDataSetSelect($event)">
+          <nb-option *ngFor="let ds of datasets" [value]="ds">{{ds}}</nb-option>
+        </nb-select>
+        &nbsp;
+        <nb-select *ngIf="algos && algos.length>0" placeholder="Select Algo" (selectedChange)="onAlgoSelect($event)">
+          <nb-option *ngFor="let algo of algos" [value]="algo">{{algo}}</nb-option>
+
+        </nb-select>
+
+        &nbsp;
+
+        <button *ngIf="images && images.length>0" nbButton (click)="OnDownload($event)">Download</button>
+
+      </div>
+
+
+    </div>
+  </nb-card-header>
+  <nb-card-body *ngIf="selectedAlgo">
+
+    <div *ngFor="let img of images; index as idx" class="row">
+      <div class="column">
+        <img [src]="img.url" />
+      </div>
+      <div class="column1">
+        <label>{{img.name}}</label>
+        
+        <nb-radio-group [name]="idx" (valueChange)="onRadioChange($event,idx)" layout-align="start center">
+          <nb-radio *ngIf="img.ans == null" value="1" disabled>TRUE</nb-radio>
+          <nb-radio *ngIf="img.ans == null" value="0" disabled>FALSE</nb-radio>
+
+          <nb-radio *ngIf="img.ans !=null && img.ans" value="1" checked="true" disabled>TRUE</nb-radio>
+          <nb-radio *ngIf="img.ans !=null && img.ans" value="0" disabled>FALSE</nb-radio>
+
+          <nb-radio *ngIf="img.ans !=null && !img.ans" value="1" disabled>TRUE</nb-radio>
+          <nb-radio *ngIf="img.ans !=null && !img.ans" value="0" checked="true" disabled>FALSE</nb-radio>
+          
+        </nb-radio-group>
+
+      </div>
+
+    </div>
+    <nb-alert *ngIf="no_images_msg" outline="danger">No Images generated for this dataset and algo</nb-alert>
+
+  </nb-card-body>
+  <!-- <nb-card-footer *ngIf="selectedAlgo && !no_images_msg">
+    <button *ngIf="showSubmitBtn" nbButton (click)="OnSubmit($event)">Submit</button>
+    <nb-alert *ngIf="saveSuccess" outline="success">Saved successfully</nb-alert>
+    <nb-alert *ngIf="saveFailed" outline="danger">{{saveFailedMsg}}</nb-alert>
+  </nb-card-footer> -->
+
+
+
+
+
+
+
+</nb-card>

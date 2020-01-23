@@ -45,7 +45,7 @@
     <nb-alert *ngIf="no_images_msg" outline="danger">No Images generated for this dataset and algo</nb-alert>
 
   </nb-card-body>
-  <nb-card-footer *ngIf="selectedAlgo">
+  <nb-card-footer *ngIf="selectedAlgo && !no_images_msg">
     <button *ngIf="showSubmitBtn" nbButton (click)="OnSubmit($event)">Submit</button>
     <nb-alert *ngIf="saveSuccess" outline="success">Saved successfully</nb-alert>
     <nb-alert *ngIf="saveFailed" outline="danger">{{saveFailedMsg}}</nb-alert>

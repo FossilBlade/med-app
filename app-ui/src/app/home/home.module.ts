@@ -18,12 +18,13 @@ import { HomeRoutingModule } from "./home-routing.module";
 import { HomeComponent } from "./home.component";
 import { UploadComponent } from "./upload/upload.component";
 import { ViewComponent } from "./view/view.component";
+import { AdminViewComponent } from "./admin-view/admin-view.component";
 import { FormsModule } from "@angular/forms";
 
 import { NgxGalleryModule } from "ngx-gallery";
 
 @NgModule({
-  declarations: [HomeComponent, UploadComponent, ViewComponent],
+  declarations: [HomeComponent, UploadComponent, ViewComponent,AdminViewComponent],
   imports: [
     CommonModule,
     NbCardModule,

@@ -24,6 +24,8 @@
     "@nebular/eva-icons": "4.6.0",
     "@nebular/theme": "^4.6.0",
     "eva-icons": "^1.1.2",
+    "file-save": "^0.2.0",
+    "file-saver": "^2.0.2",
     "font-awesome": "^4.7.0",
     "ngx-gallery": "^5.10.0",
     "rxjs": "^6.5.4",

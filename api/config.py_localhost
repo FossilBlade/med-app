@@ -1,6 +1,7 @@
 # UPLOAD SETTINGS
 UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = {'zip'}
+ZIP_FOLDER = 'download/'
 
 # EMAIL SETTINGS
 

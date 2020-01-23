@@ -8,23 +8,41 @@ import { NbIconConfig } from "@nebular/theme";
   styleUrls: ["./home.component.scss"]
 })
 export class HomeComponent implements OnInit {
-  tabs: any[] = [
-    {
-      title: "UPLOAD",
-      responsive: true,
-      route: "/upload"
-    },
-    {
-      title: "VIEW",
-      disabled: false,
-      responsive: true,
-      route: "/view"
-    }
-  ];
+  tabs: any[];
 
   constructor(private dialogService: NbDialogService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.tabs = [
+      {
+        title: "UPLOAD",
+        responsive: true,
+        route: "/upload"
+      }
+      // {
+      //   title: "VIEW",
+      //   disabled: false,
+      //   responsive: true,
+      //   route: "/view"
+      // }
+    ];
+
+    if (localStorage.getItem("userIsAdmin") == "yes") {
+      this.tabs.push({
+        title: "ADMIN VIEW",
+        disabled: false,
+        responsive: true,
+        route: "/view"
+      });
+    } else {
+      this.tabs.push({
+        title: "VIEW",
+        disabled: false,
+        responsive: true,
+        route: "/view"
+      });
+    }
+  }
 
   openDialog(dialog: TemplateRef<any>) {
     this.dialogService.open(dialog);

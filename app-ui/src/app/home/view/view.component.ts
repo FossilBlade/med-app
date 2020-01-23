@@ -159,15 +159,18 @@ export class ViewComponent implements OnInit {
     let data = this.selected_algo_img_data[algo];
 
     let error_images: string[] = [];
+    let error_images_list:string='';
     for (var img_data of this.selected_algo_img_data[algo]) {
       if (img_data.ans == null) {
         error_images.push(img_data.img);
+        error_images_list = error_images_list+img_data.img+'\n'
       }
     }
+    error_images
 
     if (error_images) {
       this.saveFailed = true;
-      this.saveFailedMsg = 'All images have not been answered. Remaining ones are: '+error_images;
+      this.saveFailedMsg = 'All images have not been answered. Remaining ones are:\n'+error_images_list;
       this.cdr.detectChanges();
     } else {
       this.apiService.saveAns(dataset, algo, data).subscribe(

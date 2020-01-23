@@ -14,12 +14,13 @@ from celery import Celery, group
 import zipfile
 import subprocess
 from email_manager import send_mail, send_mail_error
-import glob
+from zipfile import ZipFile
 
 log = logging.getLogger(__name__)
 app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['ZIP_FOLDER'] = ZIP_FOLDER
 app.config['AWS_DEFAULT_REGION'] = AWS_DEFAULT_REGION
 app.config['AWS_COGNITO_DOMAIN'] = AWS_COGNITO_DOMAIN
 app.config['AWS_COGNITO_USER_POOL_ID'] = AWS_COGNITO_USER_POOL_ID
@@ -88,7 +89,7 @@ def index():
 def aws_cognito_redirect():
     access_token = aws_auth.get_access_token(request.args)
     user = get_cognito_user_detail(access_token)
-    return jsonify(success=True,access_token=access_token, email=user.get('email')), 200
+    return jsonify(success=True,access_token=access_token, email=user.get('email'), user_is_admin=isAdmin(user)), 200
 
 
 @app.route('/login')
@@ -186,6 +187,113 @@ def get_dataset_algo():
 
     return jsonify(success=True, data=data), 200
 
+
+def isAdmin(user):
+    if user in ADMIN_USER:
+        return True
+    else:
+        return False
+
+
+@app.route('/alldataset', methods=['GET'])
+@aws_auth.authentication_required
+def get_all_dataset_algo():
+    if 'User' not in request.headers or request.headers.get('User') is None:
+        return jsonify(success=False, error='User not supplied'), 400
+    header_user = request.headers.get('User')
+
+    if not isAdmin(header_user):
+        return jsonify(success=False, error='provided user is not an admin'), 400
+
+
+
+    users = []
+    for user in os.listdir(app.config['UPLOAD_FOLDER']):
+
+       users.append(user)
+
+    final_data ={}
+    for user in users:
+        data = {}
+        final_data.update({user:data})
+        scan_path = os.path.join(app.config['UPLOAD_FOLDER'], user)
+        for x in os.walk(scan_path):
+            for ds in x[1]:
+                data[ds] = {}
+                for algos in os.walk(os.path.join(x[0], ds, 'output')):
+                    for algo in algos[1]:
+                        for images in os.walk(os.path.join(x[0], ds, 'output', algo)):
+                            if 'result.json' in images[2]:
+                                with open(os.path.join(x[0], ds, 'output', algo,'result.json')) as json_file:
+                                    list_img = json.load(json_file)
+                            else:
+                                res= sorted(images[2])
+                                list_img = [{'img':img,'ans':None} for img in res if img != 'result.json']
+
+                            data[ds].update({algo: list_img})
+                            break
+            break
+
+    log.info(final_data)
+
+    return jsonify(success=True, data=final_data), 200
+
+@app.route('/download', methods=['GET'])
+def download():
+
+    if not AWS_COGNITO_TESTING:
+        if 'token' not in request.args or request.args.get('token') is None:
+            return jsonify(success=False, error='User not supplied'), 400
+        else:
+            access_token=request.args.get('token')
+            try:
+                aws_auth.token_service.verify(access_token)
+            except TokenVerifyError as e:
+                return jsonify(success=False, error=str(e)),401
+
+
+    if 'User' not in request.headers or request.headers.get('User') is None:
+        return jsonify(success=False, error='User not supplied'), 400
+    header_user = request.headers.get('User')
+
+    if not isAdmin(header_user):
+        return jsonify(success=False, error='provided user is not an admin'), 400
+
+    if 'user' not in request.args or request.args.get('user') is None:
+        return jsonify(success=False, error='User not supplied'), 400
+
+    if 'algo' not in request.args or not request.args.get('algo'):
+        return jsonify(success=False, error='algo empty or not present'), 400
+
+    if 'dataset' not in request.args or not request.args.get('dataset'):
+        return jsonify(success=False, error='dataset empty or not present'), 400
+
+    user = request.args.get('user')
+    algo = request.args.get('algo')
+    dataset = request.args.get('dataset')
+
+    zip_path = os.path.join(app.config['ZIP_FOLDER'],'{}_{}_{}.zip'.format(user,dataset,algo))
+    os.makedirs(app.config['ZIP_FOLDER'],exist_ok=True)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, 'output', algo)
+
+    with ZipFile(zip_path, 'w') as zipObj:
+        # Iterate over all the files in directory
+        for folderName, subfolders, filenames in os.walk(file_path):
+            for filename in filenames:
+                filePath = os.path.join(folderName, filename)
+                zipObj.write(filePath,filename)
+
+
+    file_exists = os.path.exists(zip_path)
+
+    if file_exists:
+        return send_file(zip_path,
+                         mimetype='application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip',
+                         attachment_filename='{}_{}_{}.zip'.format(user,dataset,algo),
+                         as_attachment=True)
+    else:
+        return jsonify(success=False, error="file not found"), 404
+
 @app.route('/ans', methods=['POST'])
 @aws_auth.authentication_required
 def save_ans():
@@ -218,14 +326,15 @@ def save_ans():
 @app.route('/image', methods=['GET'])
 def get_images():
 
-    if 'token' not in request.args or request.args.get('token') is None:
-        return jsonify(success=False, error='User not supplied'), 400
-    else:
-        access_token=request.args.get('token')
-        try:
-            aws_auth.token_service.verify(access_token)
-        except TokenVerifyError as e:
-            return jsonify(success=False, error=str(e)),401
+    if not AWS_COGNITO_TESTING:
+        if 'token' not in request.args or request.args.get('token') is None:
+            return jsonify(success=False, error='User not supplied'), 400
+        else:
+            access_token=request.args.get('token')
+            try:
+                aws_auth.token_service.verify(access_token)
+            except TokenVerifyError as e:
+                return jsonify(success=False, error=str(e)),401
 
     if 'user' not in request.args or request.args.get('user') is None:
         return jsonify(success=False, error='User not supplied'), 400
@@ -287,22 +396,6 @@ def run_docker(username, data_set_name, algo, zip_file_path):
 
 
     return output
-
-
-
-
-    # com_output = subprocess.run([dok_comd],
-    #                             shell=True,
-    #                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # output = None
-
-    # if com_output.stdout:
-    #     output = com_output.stdout.decode('utf-8')
-    # if com_output.stderr:
-    #     output = 'ERROR: ' + com_output.stderr.decode('utf-8')
-    #     log.error(output)
-    # return output
-
 
 @celery.task
 def send_email(outputs, username, data_set_name):

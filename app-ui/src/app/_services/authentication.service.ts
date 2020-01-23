@@ -47,6 +47,7 @@ export class AuthenticationService {
     // remove user from local storage to log user out
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
+    localStorage.removeItem("userIsAdmin");
     // this.currentUserSubject.next(null);
   }
 
@@ -62,6 +63,8 @@ export class AuthenticationService {
              access_data.access_token
           );
           localStorage.setItem("user", access_data.email);
+          if (access_data.user_is_admin)
+          localStorage.setItem("user_is_admin",'yes')
         })
       );
   }
