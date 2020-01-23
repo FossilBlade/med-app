@@ -42,11 +42,15 @@ CORS(app, origins="*", allow_headers=[
 
 DCM_NII_FILE_NOT_FOUND_MSG = '.dcm or .nii file not found in zip'
 
-def isAdmin(user):
-    if user in ADMIN_USER:
+
+def isAdmin(user_groups):
+    claims = aws_auth.claims
+    user_groups = claims.get('cognito:groups')
+    if user_groups and len(user_groups) > 0 and AWS_COGNITO_ADMIN_GRP_NAME in user_groups:
         return True
     else:
         return False
+
 
 def move_dcm_nii_files(extracted_dir_name, final_path):
     file = None
@@ -82,23 +86,20 @@ def allowed_file(filename):
 def verify_toekn():
     return jsonify(success=True), 200
 
+
 @app.route('/')
 @aws_auth.authentication_required
 def index():
     claims = aws_auth.claims  # also available through g.cognito_claims
-
     return jsonify({'claims': claims})
-
 
 @app.route('/aws')
 def get_access_token():
     access_token = aws_auth.get_access_token(request.args)
-    claims = aws_auth.claims
     user_data = get_cognito_user_detail(access_token)
-    log.info('Claims: \n'+json.dumps(claims))
-    log.info('User Data: \n' + json.dumps(user_data))
     email = user_data.get('email')
-    return jsonify(success=True,access_token=access_token, email=email, user_is_admin=isAdmin(email)), 200
+    return jsonify(success=True, access_token=access_token, email=email,
+                   user_is_admin=isAdmin()), 200
 
 
 @app.route('/login')
@@ -181,12 +182,12 @@ def get_dataset_algo():
                 for algo in algos[1]:
                     for images in os.walk(os.path.join(x[0], ds, 'output', algo)):
                         if 'result.json' in images[2]:
-                            with open(os.path.join(x[0], ds, 'output', algo,'result.json')) as json_file:
+                            with open(os.path.join(x[0], ds, 'output', algo, 'result.json')) as json_file:
                                 list_img = json.load(json_file)
                             # list_img = json.load(os.path.join(x[0], ds, 'output', algo,'result.json'))
                         else:
-                            res= sorted(images[2])
-                            list_img = [{'img':img,'ans':None} for img in res if img != 'result.json']
+                            res = sorted(images[2])
+                            list_img = [{'img': img, 'ans': None} for img in res if img != 'result.json']
 
                         data[ds].update({algo: list_img})
                         break
@@ -197,30 +198,24 @@ def get_dataset_algo():
     return jsonify(success=True, data=data), 200
 
 
-
-
-
 @app.route('/alldataset', methods=['GET'])
 @aws_auth.authentication_required
 def get_all_dataset_algo():
-    if 'User' not in request.headers or request.headers.get('User') is None:
-        return jsonify(success=False, error='User not supplied'), 400
-    header_user = request.headers.get('User')
+    # if 'User' not in request.headers or request.headers.get('User') is None:
+    #     return jsonify(success=False, error='User not supplied'), 400
+    # header_user = request.headers.get('User')
 
-    if not isAdmin(header_user):
-        return jsonify(success=False, error='provided user is not an admin'), 400
-
-
+    if not isAdmin():
+        return jsonify(success=False, error='user is not an admin'), 400
 
     users = []
     for user in os.listdir(app.config['UPLOAD_FOLDER']):
+        users.append(user)
 
-       users.append(user)
-
-    final_data ={}
+    final_data = {}
     for user in users:
         data = {}
-        final_data.update({user:data})
+        final_data.update({user: data})
         scan_path = os.path.join(app.config['UPLOAD_FOLDER'], user)
         for x in os.walk(scan_path):
             for ds in x[1]:
@@ -229,11 +224,11 @@ def get_all_dataset_algo():
                     for algo in algos[1]:
                         for images in os.walk(os.path.join(x[0], ds, 'output', algo)):
                             if 'result.json' in images[2]:
-                                with open(os.path.join(x[0], ds, 'output', algo,'result.json')) as json_file:
+                                with open(os.path.join(x[0], ds, 'output', algo, 'result.json')) as json_file:
                                     list_img = json.load(json_file)
                             else:
-                                res= sorted(images[2])
-                                list_img = [{'img':img,'ans':None} for img in res if img != 'result.json']
+                                res = sorted(images[2])
+                                list_img = [{'img': img, 'ans': None} for img in res if img != 'result.json']
 
                             data[ds].update({algo: list_img})
                             break
@@ -243,17 +238,17 @@ def get_all_dataset_algo():
 
     return jsonify(success=True, data=final_data), 200
 
+
 @app.route('/download', methods=['GET'])
 @aws_auth.authentication_required
 def download():
+    # if request.headers.get('User') is None:
+    #     return jsonify(success=False, error='User not supplied'), 400
+    #
+    # header_user = request.headers.get('User')
 
-    if request.headers.get('User') is None:
-        return jsonify(success=False, error='User not supplied'), 400
-
-    header_user = request.headers.get('User')
-
-    if not isAdmin(header_user):
-        return jsonify(success=False, error='provided user is not an admin'), 400
+    if not isAdmin():
+        return jsonify(success=False, error='user is not an admin'), 400
 
     if 'user' not in request.args or request.args.get('user') is None:
         return jsonify(success=False, error='User not supplied'), 400
@@ -268,8 +263,8 @@ def download():
     algo = request.args.get('algo')
     dataset = request.args.get('dataset')
 
-    zip_path = os.path.join(app.config['ZIP_FOLDER'],'{}_{}_{}.zip'.format(user,dataset,algo))
-    os.makedirs(app.config['ZIP_FOLDER'],exist_ok=True)
+    zip_path = os.path.join(app.config['ZIP_FOLDER'], '{}_{}_{}.zip'.format(user, dataset, algo))
+    os.makedirs(app.config['ZIP_FOLDER'], exist_ok=True)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, 'output', algo)
 
     with ZipFile(zip_path, 'w') as zipObj:
@@ -277,25 +272,25 @@ def download():
         for folderName, subfolders, filenames in os.walk(file_path):
             for filename in filenames:
                 filePath = os.path.join(folderName, filename)
-                zipObj.write(filePath,filename)
-
+                zipObj.write(filePath, filename)
 
     file_exists = os.path.exists(zip_path)
 
     if file_exists:
         return send_file(zip_path,
                          mimetype='application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip',
-                         attachment_filename='{}_{}_{}.zip'.format(user,dataset,algo),
+                         attachment_filename='{}_{}_{}.zip'.format(user, dataset, algo),
                          as_attachment=True)
     else:
         return jsonify(success=False, error="file not found"), 404
+
 
 @app.route('/ans', methods=['POST'])
 @aws_auth.authentication_required
 def save_ans():
     req_data = request.get_json(force=True)
 
-    if  request.headers.get('User') is None:
+    if request.headers.get('User') is None:
         return jsonify(success=False, error='User not supplied'), 400
 
     if req_data.get('dataset') is None:
@@ -308,40 +303,40 @@ def save_ans():
         return jsonify(success=False, error='data not supplied'), 400
 
     user = request.headers.get('User')
-    dataset= req_data.get('dataset')
-    algo= req_data.get('algo')
+    dataset = req_data.get('dataset')
+    algo = req_data.get('algo')
     data = req_data.get('data')
 
     result_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, 'output', algo, 'result.json')
 
     with open(result_path, 'w') as outfile:
-        json.dump(data, outfile,indent=2)
+        json.dump(data, outfile, indent=2)
 
     return jsonify(success=True, data='saved successfully'), 200
 
+
 @app.route('/image', methods=['GET'])
 def get_images():
-
     if not AWS_COGNITO_TESTING:
         if 'token' not in request.args or request.args.get('token') is None:
             return jsonify(success=False, error='User not supplied'), 400
         else:
-            access_token=request.args.get('token')
+            access_token = request.args.get('token')
             try:
                 aws_auth.token_service.verify(access_token)
             except TokenVerifyError as e:
-                return jsonify(success=False, error=str(e)),401
+                return jsonify(success=False, error=str(e)), 401
 
     if request.args.get('user') is None:
         return jsonify(success=False, error='User not supplied'), 400
 
-    if  request.args.get('algo') is None:
+    if request.args.get('algo') is None:
         return jsonify(success=False, error='algo empty or not present'), 400
 
-    if  request.args.get('dataset')  is None:
+    if request.args.get('dataset') is None:
         return jsonify(success=False, error='dataset empty or not present'), 400
 
-    if request.args.get('img')  is None:
+    if request.args.get('img') is None:
         return jsonify(success=False, error='img empty or not present'), 400
 
     user = request.args.get('user')
@@ -390,8 +385,8 @@ def run_docker(username, data_set_name, algo, zip_file_path):
     else:
         print("Output: \n{}\n".format(output))
 
-
     return output
+
 
 @celery.task
 def send_email(outputs, username, data_set_name):

@@ -26,4 +26,4 @@ ALLOWED_ALGOS = {
    }
 
 
-ADMIN_USER=['raushan2003@gmail.com','ali@vasognosis.com']
+AWS_COGNITO_ADMIN_GRP_NAME='admin'
