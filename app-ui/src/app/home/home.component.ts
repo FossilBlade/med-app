@@ -18,13 +18,13 @@ export class HomeComponent implements OnInit {
         title: "UPLOAD",
         responsive: true,
         route: "/upload"
+      },
+      {
+        title: "VIEW",
+        disabled: false,
+        responsive: true,
+        route: "/view"
       }
-      // {
-      //   title: "VIEW",
-      //   disabled: false,
-      //   responsive: true,
-      //   route: "/view"
-      // }
     ];
 
     if (localStorage.getItem("userIsAdmin") == "yes") {
@@ -32,14 +32,7 @@ export class HomeComponent implements OnInit {
         title: "ADMIN VIEW",
         disabled: false,
         responsive: true,
-        route: "/view"
-      });
-    } else {
-      this.tabs.push({
-        title: "VIEW",
-        disabled: false,
-        responsive: true,
-        route: "/view"
+        route: "/adminview"
       });
     }
   }

@@ -4,6 +4,7 @@ import { HomeComponent } from "./home.component";
 import { UploadComponent } from "./upload/upload.component";
 import { ViewComponent } from "./view/view.component";
 import { AdminViewComponent } from "./admin-view/admin-view.component";
+import {AdminGuard} from "../_helpers/admin.guard"
 
 let view;
 if (localStorage.getItem("userIsAdmin") == "yes") view = AdminViewComponent;
@@ -20,12 +21,13 @@ const routes: Routes = [
       },
       {
         path: "view",
-        component: view
+        component: ViewComponent
       },
-      // {
-      //   path: "adminview",
-      //   component: AdminViewComponent
-      // }
+      {
+        path: "adminview",
+        component: AdminViewComponent,
+        canActivate: [AdminGuard]
+      }
     ]
   }
 ];

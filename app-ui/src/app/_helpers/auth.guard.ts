@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     if (environment.skip_login == true) {
       localStorage.setItem("user", `${environment.test_user}`);
-      localStorage.setItem("userIsAdmin", 'no');
+      localStorage.setItem("userIsAdmin", 'yes');
       return true;
     }
 
