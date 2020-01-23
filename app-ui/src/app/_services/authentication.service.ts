@@ -58,13 +58,10 @@ export class AuthenticationService {
       })
       .pipe(
         map(access_data => {
-          localStorage.setItem(
-            "accessToken",
-             access_data.access_token
-          );
+          localStorage.setItem("accessToken", access_data.access_token);
           localStorage.setItem("user", access_data.email);
           if (access_data.user_is_admin)
-          localStorage.setItem("user_is_admin",'yes')
+            localStorage.setItem("userIsAdmin", "yes");
         })
       );
   }
