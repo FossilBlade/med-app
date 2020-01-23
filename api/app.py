@@ -43,7 +43,7 @@ CORS(app, origins="*", allow_headers=[
 DCM_NII_FILE_NOT_FOUND_MSG = '.dcm or .nii file not found in zip'
 
 
-def isAdmin(user_groups):
+def isAdmin():
     claims = aws_auth.claims
     user_groups = claims.get('cognito:groups')
     if user_groups and len(user_groups) > 0 and AWS_COGNITO_ADMIN_GRP_NAME in user_groups:
