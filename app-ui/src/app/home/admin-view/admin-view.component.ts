@@ -36,7 +36,7 @@ export class AdminViewComponent implements OnInit {
   algos: string[] = [];
   user_dataset_algo_response: any;
   dataset_algo_response: any;
- 
+
   no_images_msg: boolean = false;
   saveSuccess: boolean = false;
   saveFailed: boolean = false;
@@ -45,18 +45,21 @@ export class AdminViewComponent implements OnInit {
   users: string[] = [];
   selectedUser: string;
 
+  download_error: string;
+  downloading: boolean;
+  downloaded: boolean;
+  download_prog:string = '0%';
+
   @ViewChild("gallery", { static: true }) gallery: NgxGalleryComponent;
 
   constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {
-   
-
     this.apiService.getAllUserDatasetAndAlgo().subscribe(
       data => {
         this.user_dataset_algo_response = data.data;
 
         let keys_user: string[] = [];
         for (const user in this.user_dataset_algo_response) {
-          this.users.push(user);         
+          this.users.push(user);
         }
       },
       err => {
@@ -72,8 +75,13 @@ export class AdminViewComponent implements OnInit {
   onUserSelect(user) {
     this.algos = [];
     this.datasets = [];
-    this.images = [];    
+    this.images = [];
     this.selected_algo_img_data = null;
+    this.download_error = null;
+    this.downloading = false;
+    this.downloaded = false;
+    this.download_prog = '0%';
+
     this.cdr.detectChanges();
 
     this.dataset_algo_response = this.user_dataset_algo_response[user];
@@ -104,8 +112,6 @@ export class AdminViewComponent implements OnInit {
     }
 
     this.algos = algo_list;
-
- 
   }
 
   OnDownload(event) {
@@ -113,7 +119,16 @@ export class AdminViewComponent implements OnInit {
       .downloadFile(this.selectedUser, this.selectedDataSet, this.selectedAlgo)
       .subscribe(
         result => {
-          
+          if (result.type === HttpEventType.DownloadProgress) {
+            this.downloading = true;
+
+            const percentDone = Math.round(
+              (100 * result.loaded) / result.total
+            );
+            this.download_prog = percentDone + "%";
+            console.log(this.download_prog);
+          }
+
           if (result.type === HttpEventType.Response) {
             importedSaveAs(
               result.body,
@@ -124,9 +139,19 @@ export class AdminViewComponent implements OnInit {
                 this.selectedAlgo +
                 ".zip"
             );
+
+            this.downloading = false;
+            this.downloaded = true;
           }
+          this.cdr.detectChanges();
         },
-        err => {}
+        err => {
+          this.download_prog = null;
+          this.download_error = err;
+          this.downloading = false;
+          this.downloaded = true;
+          this.cdr.detectChanges();
+        }
       );
   }
 
@@ -149,6 +174,6 @@ export class AdminViewComponent implements OnInit {
 
     if (this.images.length == 0) {
       this.no_images_msg = true;
-    } 
+    }
   }
 }

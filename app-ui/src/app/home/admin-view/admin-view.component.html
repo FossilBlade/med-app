@@ -7,19 +7,28 @@
           <nb-option *ngFor="let user of users" [value]="user">{{user}}</nb-option>
         </nb-select>
         &nbsp;
-        <nb-select *ngIf="datasets && datasets.length>0" placeholder="Data Set" (selectedChange)="onDataSetSelect($event)">
+        <nb-select *ngIf="datasets && datasets.length>0" placeholder="Data Set"
+          (selectedChange)="onDataSetSelect($event)">
           <nb-option *ngFor="let ds of datasets" [value]="ds">{{ds}}</nb-option>
         </nb-select>
         &nbsp;
         <nb-select *ngIf="algos && algos.length>0" placeholder="Select Algo" (selectedChange)="onAlgoSelect($event)">
           <nb-option *ngFor="let algo of algos" [value]="algo">{{algo}}</nb-option>
-
         </nb-select>
 
         &nbsp;
 
-        <button *ngIf="images && images.length>0" nbButton (click)="OnDownload($event)">Download</button>
-
+        <button *ngIf="!downloading && images && images.length>0" nbButton (click)="OnDownload($event)">Download</button>
+        &nbsp;
+        <nb-progress-bar *ngIf="downloading && !download_error" [value]="download_prog" status="success">
+          {{download_prog}}
+        </nb-progress-bar>
+        <nb-alert *ngIf="downloaded && !download_error" outline="success">
+          DOWNLOAD COMPLETE
+        </nb-alert>
+        <nb-alert *ngIf="downloaded && download_error" outline="danger">
+          {{download_error}}
+        </nb-alert>
       </div>
 
 
@@ -33,7 +42,7 @@
       </div>
       <div class="column1">
         <label>{{img.name}}</label>
-        
+
         <nb-radio-group [name]="idx" layout-align="start center">
           <nb-radio *ngIf="img.ans == null" value="1" disabled>TRUE</nb-radio>
           <nb-radio *ngIf="img.ans == null" value="0" disabled>FALSE</nb-radio>
@@ -43,7 +52,7 @@
 
           <nb-radio *ngIf="img.ans !=null && !img.ans" value="1" disabled>TRUE</nb-radio>
           <nb-radio *ngIf="img.ans !=null && !img.ans" value="0" checked="true" disabled>FALSE</nb-radio>
-          
+
         </nb-radio-group>
 
       </div>
