@@ -95,8 +95,8 @@ def get_access_token():
     access_token = aws_auth.get_access_token(request.args)
     claims = aws_auth.claims
     user_data = get_cognito_user_detail(access_token)
-    print('Claims: \n'+json.dumps(claims))
-    print('User Data: \n' + json.dumps(user_data))
+    log.info('Claims: \n'+json.dumps(claims))
+    log.info('User Data: \n' + json.dumps(user_data))
     email = user_data.get('email')
     return jsonify(success=True,access_token=access_token, email=email, user_is_admin=isAdmin(email)), 200
 
