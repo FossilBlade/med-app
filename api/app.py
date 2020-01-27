@@ -118,7 +118,7 @@ def sign_in():
 @app.route('/profile', methods=['GET'])
 @aws_auth.authentication_required
 def get_profile():
-    access_token = aws_auth._access_token
+    access_token = request.headers.get('Authorization').split()[-1]
     user_data = get_cognito_user_detail(access_token)
     claims = aws_auth.claims
 
