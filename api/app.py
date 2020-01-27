@@ -120,11 +120,14 @@ def sign_in():
 def get_profile():
     access_token = request.headers.get('Authorization').split()[-1]
     user_data = get_cognito_user_detail(access_token)
-    claims = aws_auth.claims
+    return jsonify(success=True, user_data=user_data), 200
 
-    return jsonify(success=True, user_data=user_data,claims=claims), 200
-
-
+@app.route('/email', methods=['POST'])
+@aws_auth.authentication_required
+def get_profile():
+    access_token = request.headers.get('Authorization').split()[-1]
+    user_data = get_cognito_user_detail(access_token)
+    return jsonify(success=True, user_data=user_data), 200
 
 
 @app.route('/upload', methods=['POST'])

@@ -30,7 +30,7 @@ export class ApiService {
 
   getUserDetails() {
     return this.http
-      .get(`${environment.apiUrl}/profile`)
+      .get<any>(`${environment.apiUrl}/profile`);
       
   }
 

@@ -42,3 +42,11 @@ def send_mail_error(receiver_email,dataset,error_msg):
     body = "Dataset '{}' failed processing.\nFailure Reason: ".format(error_msg)
 
     __generate_and_send(receiver_email, subject, body)
+
+
+def send_mail_support(subject,msg, from_user):
+
+    subject = "Support Requested: {}".format(subject)
+    body = "User Email: {}\n\nUser Msg: {}".format(from_user,msg)
+
+    __generate_and_send(';'.join(ADMIN_EMAIL), subject, body)

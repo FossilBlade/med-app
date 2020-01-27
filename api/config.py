@@ -27,3 +27,5 @@ ALLOWED_ALGOS = {
 
 
 AWS_COGNITO_ADMIN_GRP_NAME='admin'
+
+ADMIN_EMAIL=['ali@vasognosis.com','raushan2003@gmail.com']
