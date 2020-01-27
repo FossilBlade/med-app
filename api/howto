@@ -5,3 +5,5 @@ celery worker -A app.celery --loglevel=info
 ssh -i "C:\Users\rs1614\Desktop\FL\med\TEMP_XNAT.pem" ubuntu@3.12.11.252 "rm -rf /tmp/app-ui" && scp -i "C:\Users\rs1614\Desktop\FL\med\TEMP_XNAT.pem" -r app-ui ubuntu@3.12.11.252:/tmp && ssh -i "C:\Users\rs1614\Desktop\FL\med\TEMP_XNAT.pem" ubuntu@3.12.11.252 "sudo rm -rf /var/www/html/* && sudo mv /tmp/app-ui/* /var/www/html/ && sudo chmod -R 644 /var/www/html/*"
 
 docker build -t ResNet100:latest .
+
+aws s3 --profile ss3 sync s3://vg-leo-backup/object_detection_docker ~/s3_algo_docker

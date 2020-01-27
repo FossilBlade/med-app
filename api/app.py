@@ -147,68 +147,6 @@ def send_supp_email():
     return jsonify(success=True, error='mail sent'), 200
 
 
-@app.route('/upload', methods=['POST'])
-@aws_auth.authentication_required
-def upload_file_and_run():
-    algos = []
-    dataset = None
-
-    print(request.files)
-    print(request.form)
-    if 'file' not in request.files:
-        return jsonify(success=False, error='file not present'), 400
-
-    if 'User' not in request.headers or request.headers.get('User') is None:
-        return jsonify(success=False, error='User not supplied'), 400
-
-    user = request.headers.get('User')
-
-    file = request.files.get('file')
-    fileName = file.filename
-
-    if fileName == '':
-        return jsonify(success=False, error='filename not present'), 400
-
-    if not request.form.get('algosToRun'):
-        return jsonify(success=False, error='algos to run empty or not present'), 400
-    else:
-        algos = json.loads(request.form.get('algosToRun'))
-        print(algos)
-
-    if not request.form.get('dataset'):
-        return jsonify(success=False, error='dataset empty or not present'), 400
-    else:
-        dataset = request.form.get('dataset')
-        print(dataset)
-
-    if not request.form.get('gamma'):
-        return jsonify(success=False, error='gamma empty or not present'), 400
-    else:
-        gamma = request.form.get('gamma')
-        print(dataset)
-
-    if not request.form.get('confidence'):
-        return jsonify(success=False, error='confidence empty or not present'), 400
-    else:
-        confidence = request.form.get('confidence')
-        print(dataset)
-
-    if file and allowed_file(fileName):
-        filename = secure_filename(file.filename)
-        zip_save_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, filename)
-        os.makedirs(os.path.dirname(zip_save_path), exist_ok=True)
-        file.save(zip_save_path)
-    else:
-        return jsonify(success=False, error='file not valid'), 400
-
-    job = (group(
-        run_docker.s(user, dataset, algo,confidence,gamma, zip_save_path) for algo in algos
-
-    ) | send_email.s(user, dataset))
-
-    job.apply_async()
-
-    return jsonify(success=True), 200
 
 
 @app.route('/initupload', methods=['GET'])
@@ -403,6 +341,69 @@ def get_images():
 
     return send_file(img_path, mimetype='image/gif')
 
+@app.route('/upload', methods=['POST'])
+@aws_auth.authentication_required
+def upload_file_and_run():
+    algos = []
+    dataset = None
+
+    print(request.files)
+    print(request.form)
+    if 'file' not in request.files:
+        return jsonify(success=False, error='file not present'), 400
+
+    if 'User' not in request.headers or request.headers.get('User') is None:
+        return jsonify(success=False, error='User not supplied'), 400
+
+    user = request.headers.get('User')
+
+    file = request.files.get('file')
+    fileName = file.filename
+
+    if fileName == '':
+        return jsonify(success=False, error='filename not present'), 400
+
+    if not request.form.get('algosToRun'):
+        return jsonify(success=False, error='algos to run empty or not present'), 400
+    else:
+        algos = json.loads(request.form.get('algosToRun'))
+        print(algos)
+
+    if not request.form.get('dataset'):
+        return jsonify(success=False, error='dataset empty or not present'), 400
+    else:
+        dataset = request.form.get('dataset')
+        print(dataset)
+
+    if not request.form.get('gamma'):
+        return jsonify(success=False, error='gamma empty or not present'), 400
+    else:
+        gamma = request.form.get('gamma')
+        print(dataset)
+
+    if not request.form.get('confidence'):
+        return jsonify(success=False, error='confidence empty or not present'), 400
+    else:
+        confidence = request.form.get('confidence')
+        print(dataset)
+
+    if file and allowed_file(fileName):
+        filename = secure_filename(file.filename)
+        zip_save_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, filename)
+        os.makedirs(os.path.dirname(zip_save_path), exist_ok=True)
+        file.save(zip_save_path)
+    else:
+        return jsonify(success=False, error='file not valid'), 400
+
+    job = (group(
+        run_docker.s(user, dataset, algo,confidence,gamma, zip_save_path) for algo in algos
+
+    ) | send_email.s(user, dataset))
+
+    job.apply_async()
+
+    return jsonify(success=True), 200
+
 
 @celery.task
 def run_docker(username, data_set_name, algo,confidence,gamma, zip_file_path):
@@ -411,8 +412,8 @@ def run_docker(username, data_set_name, algo,confidence,gamma, zip_file_path):
     docker_img_name = algo_data.get('docker_image_name')
     docker_template = algo_data.get('docker_run_template')
     zip_base_path = os.path.dirname(zip_file_path)
-    zip_extracted = os.path.join(zip_base_path, 'extracted')
-    zip_extracted_temp = os.path.join(zip_base_path, 'extracted_temp')
+    zip_extracted = os.path.join(zip_base_path, 'extracted',algo)
+    zip_extracted_temp = os.path.join(zip_base_path, 'extracted_temp',algo)
     output_path = os.path.join(zip_base_path, 'output', algo)
     os.makedirs(zip_extracted, exist_ok=True)
     os.makedirs(output_path, exist_ok=True)
