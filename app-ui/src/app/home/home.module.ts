@@ -11,7 +11,8 @@ import {
   NbProgressBarModule,
   NbAlertModule,
   NbRadioModule,
-  NbLayoutModule
+  NbLayoutModule,
+  NbCheckboxModule
 } from "@nebular/theme";
 
 import { HomeRoutingModule } from "./home-routing.module";
@@ -22,14 +23,20 @@ import { AdminViewComponent } from "./admin-view/admin-view.component";
 import { FormsModule } from "@angular/forms";
 
 import { NgxGalleryModule } from "ngx-gallery";
+import { PolicyDialogComponent } from "./upload/dialog/policy-dialog.component";
 
 @NgModule({
-  declarations: [HomeComponent, UploadComponent, ViewComponent,AdminViewComponent],
+  declarations: [
+    HomeComponent,
+    UploadComponent,
+    ViewComponent,
+    AdminViewComponent,
+    PolicyDialogComponent
+  ],
   imports: [
     CommonModule,
     NbCardModule,
     NbButtonModule,
-    NbDialogModule.forRoot(),
     HomeRoutingModule,
     NbRouteTabsetModule,
     NbInputModule,
@@ -39,7 +46,11 @@ import { NgxGalleryModule } from "ngx-gallery";
     FormsModule,
     NgxGalleryModule,
     NbRadioModule,
-    NbLayoutModule
-  ]
+    NbLayoutModule,
+    NbDialogModule.forChild(),
+    NbCheckboxModule
+  ],
+  entryComponents: [PolicyDialogComponent]
+  
 })
 export class HomeModule {}

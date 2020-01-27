@@ -115,6 +115,17 @@ def sign_in():
     # aws_auth.redirect_url = request.args.get('redirectUrl')
     return redirect(aws_auth.get_sign_in_url())
 
+@app.route('/profile', methods=['GET'])
+@aws_auth.authentication_required
+def get_profile():
+    access_token = aws_auth._access_token
+    user_data = get_cognito_user_detail(access_token)
+    claims = aws_auth.claims
+
+    return jsonify(success=True, user_data=user_data,claims=claims), 200
+
+
+
 
 @app.route('/upload', methods=['POST'])
 @aws_auth.authentication_required
@@ -168,10 +179,16 @@ def upload_file_and_run():
     return jsonify(success=True), 200
 
 
-@app.route('/algo', methods=['GET'])
+@app.route('/initupload', methods=['GET'])
 @aws_auth.authentication_required
 def get_algo():
-    return jsonify(success=True, algos=list(ALLOWED_ALGOS.keys())), 200
+    tnc = ""
+
+    with open('TERMS_AND_CONDITION.txt', 'r',encoding="utf8"
+              ) as f:
+        tnc = f.read()
+
+    return jsonify(success=True, algos=list(ALLOWED_ALGOS.keys()), tnc=tnc), 200
 
 
 @app.route('/dataset', methods=['GET'])

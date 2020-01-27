@@ -28,10 +28,16 @@ import { AlgoResult } from "../_models/algo-result";
 export class ApiService {
   constructor(private http: HttpClient) {}
 
-  getAlgos() {
+  getUserDetails() {
     return this.http
-      .get<AlgoResult>(`${environment.apiUrl}/algo`)
-      .pipe(map(response => response));
+      .get(`${environment.apiUrl}/profile`)
+      
+  }
+
+  initupload() {
+    return this.http
+      .get<AlgoResult>(`${environment.apiUrl}/initupload`);
+      
   }
 
   downloadFile(selectedUser, selectedDataSet, selectedAlgo) {

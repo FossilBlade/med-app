@@ -10,16 +10,18 @@ import {
   NbLayoutModule,
   NbContextMenuModule,
   NbActionsModule,
-  NbMenuModule
-  
+  NbMenuModule,
+  NbDialogService,
+  NbDialogModule
 } from "@nebular/theme";
+
+import { NbEvaIconsModule } from "@nebular/eva-icons";
 
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { BasicAuthInterceptor, ErrorInterceptor } from "./_helpers";
 
 import { FormsModule } from "@angular/forms";
-
-
+import { PolicyDialogComponent } from "./home/upload/dialog/policy-dialog.component";
 
 @NgModule({
   declarations: [AppComponent],
@@ -34,8 +36,10 @@ import { FormsModule } from "@angular/forms";
     NbContextMenuModule,
     HttpClientModule,
     FormsModule,
-    
+    NbActionsModule,
+    NbEvaIconsModule
   ],
+
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: BasicAuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }

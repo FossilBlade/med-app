@@ -1,6 +1,7 @@
+
 <nb-card>
-  <nb-card-header>    
-    <input type="text" placeholder="Data Set Name" [(ngModel)]="dataName" nbInput>    
+  <nb-card-header>
+    <input type="text" placeholder="Data Set Name" [(ngModel)]="dataName" nbInput>
   </nb-card-header>
   <nb-card-body>
     <nb-select multiple placeholder="Algoes to Run" [(selected)]="selectedAlgos">
@@ -8,13 +9,17 @@
       <!-- <nb-option value="2">Algo 2</nb-option>
       <nb-option value="3">Algo 3</nb-option>
       <nb-option value="4">Algo 4</nb-option> -->
-    </nb-select>
+    </nb-select><br><br>
+    <nb-checkbox (click)="togglePolicy($event)">I agree with<a (click)="openPolicyDialog()"> terms and conditions.</a></nb-checkbox>
+    <!-- <button nbButton (click)="openPolicyDialog()">Open Dialog</button> -->
   </nb-card-body>
   <nb-card-footer>
-    <button nbButton *ngIf="!uploadComplete && !errorMsg && !uploadStarted" status="primary" (click)="openFile()" [disabled]="!(dataName && selectedAlgos)">Upload</button>
+    <button nbButton *ngIf="!uploadComplete && !errorMsg && !uploadStarted" status="primary" (click)="openFile()"
+      [disabled]="!(dataName && selectedAlgos && policyTicked)">Upload</button>
     <input type="file" id="fileUpload" (change)="inputFileHandle($event)" hidden>
     <nb-alert *ngIf="errorMsg" outline="danger">{{errorMsg}}</nb-alert>
     <nb-alert *ngIf="uploadComplete" outline="success">Upload Success. Email notification will be send.</nb-alert>
-    <nb-progress-bar *ngIf="uploadStarted" [value]="uploadProgressValue" status="primary" [displayValue]="uploadProgressValue"></nb-progress-bar>
+    <nb-progress-bar *ngIf="uploadStarted" [value]="uploadProgressValue" status="primary"
+      [displayValue]="uploadProgressValue"></nb-progress-bar>
   </nb-card-footer>
 </nb-card>

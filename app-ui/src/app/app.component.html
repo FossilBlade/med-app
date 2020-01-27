@@ -1,17 +1,18 @@
 <nb-layout>
 
   <nb-layout-header fixed>
-    <!-- <nb-actions class="left">
-      <nb-action class="profile" [nbContextMenu]="items" nbContextMenuPlacement="bottom">Profile</nb-action>
-      <nb-action>Settings</nb-action>
-    </nb-actions> -->
+    <h3>APP</h3>
+    <nb-actions class="left">
+      <nb-action icon="person-outline" href="/profile"></nb-action>
+      <nb-action icon="power-outline" (click)="logout()"></nb-action>
+    </nb-actions>
 
 
 
 
     <!-- <img class="mainimage" src="/assets/images/main.png">
     &nbsp; -->
-    <h3>APP</h3>
+   
 
 
 
