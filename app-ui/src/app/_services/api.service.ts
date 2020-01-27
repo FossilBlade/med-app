@@ -76,4 +76,12 @@ export class ApiService {
       {}
     );
   }
+
+  sendSuppMail(subject, msg) {
+    return this.http.post(
+      `${environment.apiUrl}/supemail`,
+      { subject: subject, msg: msg },
+      {}
+    );
+  }
 }

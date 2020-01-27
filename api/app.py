@@ -13,7 +13,7 @@ from hashlib import md5
 from celery import Celery, group
 import zipfile
 import subprocess
-from email_manager import send_mail, send_mail_error
+from email_manager import send_mail, send_mail_error, send_mail_support
 from zipfile import ZipFile
 
 log = logging.getLogger(__name__)
@@ -115,6 +115,7 @@ def sign_in():
     # aws_auth.redirect_url = request.args.get('redirectUrl')
     return redirect(aws_auth.get_sign_in_url())
 
+
 @app.route('/profile', methods=['GET'])
 @aws_auth.authentication_required
 def get_profile():
@@ -122,12 +123,28 @@ def get_profile():
     user_data = get_cognito_user_detail(access_token)
     return jsonify(success=True, user_data=user_data), 200
 
-@app.route('/email', methods=['POST'])
+
+@app.route('/supemail', methods=['POST'])
 @aws_auth.authentication_required
-def get_profile():
-    access_token = request.headers.get('Authorization').split()[-1]
-    user_data = get_cognito_user_detail(access_token)
-    return jsonify(success=True, user_data=user_data), 200
+def send_supp_email():
+    req_data = request.get_json(force=True)
+
+    user = request.headers.get('User')
+    subject = req_data.get('subject')
+    msg = req_data.get('msg')
+
+    if user is None:
+        return jsonify(success=False, error='user not supplied'), 400
+
+    if subject is None:
+        return jsonify(success=False, error='subject not supplied'), 400
+
+    if msg is None:
+        return jsonify(success=False, error='msg not supplied'), 400
+
+    send_mail_support(user,subject, msg)
+
+    return jsonify(success=True, error='mail sent'), 200
 
 
 @app.route('/upload', methods=['POST'])
@@ -164,6 +181,18 @@ def upload_file_and_run():
         dataset = request.form.get('dataset')
         print(dataset)
 
+    if not request.form.get('gamma'):
+        return jsonify(success=False, error='gamma empty or not present'), 400
+    else:
+        gamma = request.form.get('gamma')
+        print(dataset)
+
+    if not request.form.get('confidence'):
+        return jsonify(success=False, error='confidence empty or not present'), 400
+    else:
+        confidence = request.form.get('confidence')
+        print(dataset)
+
     if file and allowed_file(fileName):
         filename = secure_filename(file.filename)
         zip_save_path = os.path.join(app.config['UPLOAD_FOLDER'], user, dataset, filename)
@@ -173,7 +202,7 @@ def upload_file_and_run():
         return jsonify(success=False, error='file not valid'), 400
 
     job = (group(
-        run_docker.s(user, dataset, algo, zip_save_path) for algo in algos
+        run_docker.s(user, dataset, algo,confidence,gamma, zip_save_path) for algo in algos
 
     ) | send_email.s(user, dataset))
 
@@ -187,7 +216,7 @@ def upload_file_and_run():
 def get_algo():
     tnc = ""
 
-    with open('TERMS_AND_CONDITION.txt', 'r',encoding="utf8"
+    with open('TERMS_AND_CONDITION.txt', 'r', encoding="utf8"
               ) as f:
         tnc = f.read()
 
@@ -274,13 +303,13 @@ def download():
     if not isAdmin(user_groups):
         return jsonify(success=False, error='user is not an admin'), 400
 
-    if 'user' not in request.args or request.args.get('user') is None:
-        return jsonify(success=False, error='User not supplied'), 400
+    if request.args.get('user') is None:
+        return jsonify(success=False, error='sser not supplied'), 400
 
-    if 'algo' not in request.args or not request.args.get('algo'):
+    if request.args.get('algo') is None:
         return jsonify(success=False, error='algo empty or not present'), 400
 
-    if 'dataset' not in request.args or not request.args.get('dataset'):
+    if request.args.get('dataset') is None:
         return jsonify(success=False, error='dataset empty or not present'), 400
 
     user = request.args.get('user')
@@ -376,8 +405,8 @@ def get_images():
 
 
 @celery.task
-def run_docker(username, data_set_name, algo, zip_file_path):
-    log.info('Input Received: {}, {}, {}, {}'.format(username, data_set_name, algo, zip_file_path))
+def run_docker(username, data_set_name, algo,confidence,gamma, zip_file_path):
+    log.info('Input Received: {}, {}, {}, {}'.format(username, data_set_name, algo,confidence,gamma, zip_file_path))
     algo_data = ALLOWED_ALGOS.get(algo)
     docker_img_name = algo_data.get('docker_image_name')
     docker_template = algo_data.get('docker_run_template')
@@ -397,7 +426,7 @@ def run_docker(username, data_set_name, algo, zip_file_path):
     except Exception as e:
         return 'ERROR: ' + str(e)
 
-    dok_comd = docker_template.format(os.path.abspath(zip_extracted), os.path.abspath(output_path), docker_img_name)
+    dok_comd = docker_template.format(gamma,confidence,os.path.abspath(zip_extracted), os.path.abspath(output_path), docker_img_name)
     log.info(dok_comd)
 
     try:

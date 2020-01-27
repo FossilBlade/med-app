@@ -5,7 +5,7 @@ import { ApiService } from "src/app/_services/api.service";
 import { AlgoResult } from "src/app/_models/algo-result";
 import { NbDialogService } from "@nebular/theme";
 import { NgTemplateOutlet } from "@angular/common";
-import { PolicyDialogComponent } from './dialog/policy-dialog.component';
+import { PolicyDialogComponent } from "./dialog/policy-dialog.component";
 @Component({
   selector: "app-upload",
   templateUrl: "./upload.component.html",
@@ -15,13 +15,15 @@ export class UploadComponent implements OnInit {
   algos: string[];
   selectedAlgos: string[];
   dataName: string;
+  confidence: number=0;
+  gamma: number=0;
   uploadProgressValue: number = 0;
   showError: boolean = false;
   uploadStarted: boolean = false;
   uploadComplete: boolean = false;
   errorMsg: string = "";
-  tacWording:string = '';
-  policyTicked:boolean=false;
+  tacWording: string = "";
+  policyTicked: boolean = false;
   constructor(
     private apiService: ApiService,
     private cdr: ChangeDetectorRef,
@@ -39,17 +41,30 @@ export class UploadComponent implements OnInit {
     );
   }
 
-  ngOnInit() {}  
-  
+  ngOnInit() {}
+
+  confidenceAndGammaValid(): boolean {
+    if (
+      this.gamma >= 0.0 &&
+      this.gamma <= 1.0 &&
+      this.confidence >= 0.0 &&
+      this.confidence <= 1.0
+    )
+      return true;
+
+    return false;
+  }
+
   openPolicyDialog() {
-    this.dialogService.open(PolicyDialogComponent, {hasScroll :true,
-      context: {       
+    this.dialogService.open(PolicyDialogComponent, {
+      hasScroll: true,
+      context: {
         tacWording: this.tacWording
-      },
+      }
     });
   }
 
-  togglePolicy(event){
+  togglePolicy(event) {
     this.policyTicked = !this.policyTicked;
   }
 
@@ -78,6 +93,9 @@ export class UploadComponent implements OnInit {
     formData.append("file", fileData);
     formData.append("algosToRun", JSON.stringify(this.selectedAlgos));
     formData.append("dataset", this.dataName);
+    formData.append("confidence", this.confidence.toString());
+    formData.append("gamma", this.gamma.toString());
+
 
     this.uploadStarted = true;
     this.apiService.uploadFile(formData).subscribe(

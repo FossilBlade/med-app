@@ -6,15 +6,20 @@
   <nb-card-body>
     <nb-select multiple placeholder="Algoes to Run" [(selected)]="selectedAlgos">
       <nb-option *ngFor="let algo of algos" [value]="algo">{{algo}}</nb-option>
-      <!-- <nb-option value="2">Algo 2</nb-option>
-      <nb-option value="3">Algo 3</nb-option>
-      <nb-option value="4">Algo 4</nb-option> -->
+     
     </nb-select><br><br>
+    <div *ngIf="selectedAlgos && selectedAlgos.length>0">
+    <label>Min Confidence (value in range 0-1)</label><br>
+    <input type="text" placeholder="min-confidence (value in range 0-1)" [(ngModel)]="confidence" nbInput><br><br>
+    <label>Gamma (value in range 0-1)</label><br>
+    <input type="text" placeholder="gamma correction (value in range 0-1)" [(ngModel)]="gamma" nbInput><br><br>
+    <nb-alert *ngIf="!confidenceAndGammaValid()" outline="danger">Please coorect value for min-confidence and gamma. Value in range 0-1</nb-alert>
+  </div>
     <nb-checkbox (click)="togglePolicy($event)">I agree with<a (click)="openPolicyDialog()"> terms and conditions.</a></nb-checkbox>
-    <!-- <button nbButton (click)="openPolicyDialog()">Open Dialog</button> -->
+    
   </nb-card-body>
   <nb-card-footer>
-    <button nbButton *ngIf="!uploadComplete && !errorMsg && !uploadStarted" status="primary" (click)="openFile()"
+    <button nbButton *ngIf="!uploadComplete && !errorMsg && !uploadStarted && confidenceAndGammaValid()" status="primary" (click)="openFile()"
       [disabled]="!(dataName && selectedAlgos && policyTicked)">Upload</button>
     <input type="file" id="fileUpload" (change)="inputFileHandle($event)" hidden>
     <nb-alert *ngIf="errorMsg" outline="danger">{{errorMsg}}</nb-alert>

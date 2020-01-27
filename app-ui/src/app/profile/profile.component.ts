@@ -9,10 +9,11 @@ import { NbDialogService } from "@nebular/theme";
   styleUrls: ["./profile.component.scss"]
 })
 export class ProfileComponent implements OnInit {
-  email: string = "test";
-  firstname: string = "raush";
-  lastname: string = "sing";
-  phone: string = "+64";
+  email: string ;
+  firstname: string;
+  lastname: string ;
+  phone: string  ;
+  errorProfile:boolean=false;
 
   constructor(
     private apiService: ApiService,
@@ -31,6 +32,7 @@ export class ProfileComponent implements OnInit {
       },
       err => {
         console.log(JSON.stringify(err));
+        this.errorProfile=true;
       }
     );
   }
