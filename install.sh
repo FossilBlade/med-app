@@ -1,17 +1,20 @@
 sudo add-apt-repository -y ppa:certbot/certbot
-curl -sL https://deb.nodesource.com/setup_10.x -o nodesource_setup.sh
+sudo curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
 sudo bash nodesource_setup.sh
-sudo apt -y update && apt-get install -y python3 python3-dev python3-venv python-certbot-nginx install build-essential nodejs
+sudo apt -y update && sudo apt install -y python3 python3-dev python3-venv python-certbot-nginx install build-essential
 
 
 rm -rf /appl/demo-app-api
 rm -rf /etc/systemd/system/api.service /etc/systemd/system/celery.service
-mkdir -p /appl/demo-app-api
+sudo mkdir -p /appl/demo-app-api
+sudo chown -R ubuntu:ubuntu /appl
 cp -r api/* /appl/demo-app-api/
 python3 -m venv /appl/demo-app-api/venv
 /appl/demo-app-api/venv/bin/pip install -r /appl/demo-app-api/requirements.txt
-cp api.service /etc/systemd/system/api.service 
-cp celery.service /etc/systemd/system/celery.service
+sudo cp api.service /etc/systemd/system/api.service 
+sudo cp celery.service /etc/systemd/system/celery.service
 
 cd app-ui && npm install
 ng --prod build
