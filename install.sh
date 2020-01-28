@@ -2,8 +2,7 @@ sudo add-apt-repository -y ppa:certbot/certbot
 sudo curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-sudo bash nodesource_setup.sh
-sudo apt -y update && sudo apt install -y python3 python3-dev python3-venv python-certbot-nginx install build-essential
+sudo apt -y update && sudo apt-get install -y python3 python3-dev python3-venv python3-pip python-certbot-nginx build-essential
 
 
 rm -rf /appl/demo-app-api
