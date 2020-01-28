@@ -7,3 +7,6 @@ ssh -i "C:\Users\rs1614\Desktop\FL\med\TEMP_XNAT.pem" ubuntu@3.12.11.252 "rm -rf
 docker build -t ResNet100:latest .
 
 aws s3 --profile ss3 sync s3://vg-leo-backup/object_detection_docker ~/s3_algo_docker
+
+kill $(ps aux | grep 'celery' | awk '{print $2}')
+kill $(ps aux | grep 'app.py' | awk '{print $2}')

@@ -1,10 +1,10 @@
 <nb-card>
     <nb-card-header>User Profile</nb-card-header>
-    <nb-card-body *ngIf="!errorProfile">
+    <nb-card-body *ngIf="!errorProfile && firstname">
         <label class="left">First Name:</label><input class="right" type="text" [value]="firstname" disabled><br><br>
         <label class="left">Last Name:</label><input class="right" type="text" [value]="lastname" disabled><br><br>
-        <label class="left">Email:</label><input class="right" type="text" [value]="phone" disabled><br><br>
-        <label class="left">Phone:</label><input class="right" type="text" [value]="email" disabled><br><br>
+        <label class="left">Email:</label><input class="right" type="text" [value]="email" disabled><br><br>
+        <label class="left">Phone:</label><input class="right" type="text" [value]="phone" disabled><br><br>
     </nb-card-body>
     <nb-card-body *ngIf="errorProfile">
         <nb-alert outline="danger">Error Getting Profile. Please refresh the page or contact support.</nb-alert>
