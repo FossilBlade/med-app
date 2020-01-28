@@ -1,26 +1,12 @@
 ﻿import { Injectable } from "@angular/core";
-import {
-  HttpClient,
-  HttpParams,
-  HttpResponse,
-  HttpEventType
-} from "@angular/common/http";
-import { ResponseContentType } from "@angular/http";
+import { HttpClient } from "@angular/common/http";
+
 import { BehaviorSubject, Observable } from "rxjs";
 
 import { environment } from "../../environments/environment";
-import { CheckResult } from "../_models/check-result";
 
-import {
-  switchMap,
-  retry,
-  catchError,
-  timeout,
-  finalize,
-  map
-} from "rxjs/operators";
+import { map } from "rxjs/operators";
 
-import { of, throwError } from "rxjs";
 import { AwsAccess } from "../_models/aws-access";
 
 @Injectable({ providedIn: "root" })
