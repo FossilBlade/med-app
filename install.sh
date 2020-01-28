@@ -23,11 +23,11 @@ sudo cp celery.service /etc/systemd/system/celery.service
 export NG_CLI_ANALYTICS=ci
 
 cd app-ui && npm install
-ng --prod build
+npm run ng --prod build
 cp -r dist/app-ui/* /var/www/html
 cd ..
 
-docker run --name redis --restart always -p 6379:6379 -d redis
+sudo docker run --name redis --restart always -p 6379:6379 -d redis
 
 sudo mv /etc/nginx/sites-available/default /etc/nginx/default.bck 
 sudo cp nginx-no-ssl.conf /etc/nginx/sites-available/default
