@@ -3,7 +3,7 @@ sudo curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 sudo apt -y update && sudo apt-get install -y python3 python3-dev python3-venv python3-pip python-certbot-nginx build-essential
-sudo apt-get remove docker docker-engine docker.io
+sudo apt-get -y remove docker docker-engine docker.io
 sudo apt -y install docker.io
 
 sudo systemctl start docker && sudo systemctl enable docker
