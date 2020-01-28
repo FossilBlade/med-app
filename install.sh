@@ -4,7 +4,7 @@ sudo apt-get install -y nodejs
 
 sudo apt -y update && sudo apt-get install -y python3 python3-dev python3-venv python3-pip python-certbot-nginx build-essential
 sudo apt-get remove docker docker-engine docker.io
-sudo apt install docker.io
+sudo apt -y install docker.io
 
 sudo systemctl start docker && sudo systemctl enable docker
 sudo usermod -aG docker ubuntu
@@ -32,10 +32,10 @@ docker run --name redis --restart always -p 6379:6379 -d redis
 sudo mv /etc/nginx/sites-available/default /etc/nginx/default.bck 
 sudo cp nginx-no-ssl.conf /etc/nginx/sites-available/default
 
-sudo systemctl enable nginx
-sudo systemctl enable api
-sudo systemctl enable celerey
-
 sudo systemctl start nginx
 sudo systemctl start api
 sudo systemctl start celerey
+
+sudo systemctl enable nginx
+sudo systemctl enable api
+sudo systemctl enable celerey
