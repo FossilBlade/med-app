@@ -1,3 +1,7 @@
+################
+### THESE ARE PROD SETTINGS
+################
+
 # UPLOAD SETTINGS
 UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = {'zip'}
@@ -27,4 +31,4 @@ ALLOWED_ALGOS = {
 
 AWS_COGNITO_ADMIN_GRP_NAME = 'admin'
 
-ADMIN_EMAIL = ['raushan2003@gmail.com']  # 'ali@vasognosis.com'
+ADMIN_EMAIL = ['raushan2003@gmail.com','ali@vasognosis.com']
