@@ -24,7 +24,7 @@ export NG_CLI_ANALYTICS=ci
 
 cd app-ui && npm install
 npm run ng --prod build
-cp -r dist/app-ui/* /var/www/html
+sudo cp -r dist/app-ui/* /var/www/html && sudo chmod -R 644 /var/www/html/*
 cd ..
 
 sudo docker run --name redis --restart always -p 6379:6379 -d redis
@@ -34,8 +34,8 @@ sudo cp nginx-no-ssl.conf /etc/nginx/sites-available/default
 
 sudo systemctl start nginx
 sudo systemctl start api
-sudo systemctl start celerey
+sudo systemctl start celery
 
 sudo systemctl enable nginx
 sudo systemctl enable api
-sudo systemctl enable celerey
+sudo systemctl enable celery
